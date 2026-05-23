@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Current Mods — 566 STI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f;
+    --panel: #1a1a1a;
+    --panel-2: #222;
+    --border: #2a2a2a;
+    --border-strong: #333;
+    --text: #e8e8e8;
+    --text-dim: #aaa;
+    --text-mute: #666;
+    --text-faint: #555;
+    --blue: #3b82f6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --purple: #a78bfa;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 1.5rem;
+    line-height: 1.4;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.25rem;
+  }
+  .brand {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .brand a { color: inherit; text-decoration: none; }
+  .brand .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    margin-right: 8px;
+    transform: translateY(-2px);
+  }
+  .crumb {
+    font-size: 11px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .crumb a { color: var(--text-mute); text-decoration: none; }
+  .crumb a:hover { color: var(--text-dim); }
+  .crumb .sep { margin: 0 6px; color: var(--text-faint); }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+  }
+
+  /* summary stat cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 520px) { .cards { grid-template-columns: repeat(4, 1fr); } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .card-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 4px;
+  }
+  .card.c1 .card-value { color: var(--blue); }
+  .card.c2 .card-value { color: var(--green); }
+  .card.c3 .card-value { color: var(--amber); }
+  .card.c4 .card-value { color: var(--purple); }
+
+  /* sections */
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-name {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-name .swatch {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--text-mute);
+  }
+  .section.s1 .swatch { background: var(--blue); }
+  .section.s2 .swatch { background: var(--green); }
+  .section.s3 .swatch { background: var(--amber); }
+  .section.s4 .swatch { background: var(--purple); }
+  .section-count {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* parts list */
+  ul.parts { list-style: none; }
+  ul.parts > li {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+  }
+  ul.parts > li:last-child { border-bottom: none; }
+  .part-name { font-size: 13px; color: var(--text); }
+  .part-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-mute);
+    background: var(--panel-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* nested sub-group (e.g. IAG short block specs) */
+  .sub {
+    margin-top: 6px;
+    margin-left: 0;
+    padding: 10px 12px;
+    background: #141414;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .sub-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .sub ul { list-style: none; }
+  .sub ul li {
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--text-dim);
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 520px) {
+    .sub ul li { grid-template-columns: 1fr; gap: 2px; }
+  }
+  .sub ul li .k { color: var(--text-mute); text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+  .sub ul li .v { color: var(--text); }
+
+  /* note */
+  .note { border-left: 2px solid var(--border-strong); padding-left: 12px; margin-top: 1.5rem; }
+  .note-title {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+  .note-text { font-size: 12px; color: var(--text-faint); line-height: 1.5; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  footer a { color: var(--text-mute); text-decoration: none; }
+  footer a:hover { color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand"><a href="index.html"><span class="dot"></span>566 / STI GARAGE</a></div>
+    <div class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Current Mods</div>
+  </div>
+
+  <h1>Current Mods</h1>
+  <div class="subtitle">Build sheet · as of season open</div>
+
+  <div class="cards">
+    <div class="card c1">
+      <div class="card-label">Suspension</div>
+      <div class="card-value">6</div>
+      <div class="card-sub">Coilovers · bars · arms</div>
+    </div>
+    <div class="card c2">
+      <div class="card-label">Wheels &amp; Tires</div>
+      <div class="card-value">1</div>
+      <div class="card-sub">Apex VS-5 · CR-S V2</div>
+    </div>
+    <div class="card c3">
+      <div class="card-label">Engine</div>
+      <div class="card-value">30+</div>
+      <div class="card-sub">IAG 700 long block</div>
+    </div>
+    <div class="card c4">
+      <div class="card-label">Driveline</div>
+      <div class="card-value">11</div>
+      <div class="card-sub">Twin disc · solid mounts</div>
+    </div>
+  </div>
+
+  <!-- SUSPENSION -->
+  <div class="section s1">
+    <div class="section-head">
+      <div class="section-name"><span class="swatch"></span>Suspension</div>
+      <div class="section-count">6 items</div>
+    </div>
+    <ul class="parts">
+      <li><span class="part-name">Öhlins R&amp;T Coilovers</span><span class="part-tag">Damper</span></li>
+      <li><span class="part-name">Swift 8k Springs, front &amp; rear</span><span class="part-tag">Spring</span></li>
+      <li><span class="part-name">Whiteline 24mm RSB</span><span class="part-tag">Sway bar</span></li>
+      <li><span class="part-name">SPL Rear Endlinks</span><span class="part-tag">Link</span></li>
+      <li><span class="part-name">SPL Rear LCA</span><span class="part-tag">Arm</span></li>
+      <li><span class="part-name">SuperPro Rear toe arms w/ SPL Eccentric Lockouts</span><span class="part-tag">Arm</span></li>
+    </ul>
+  </div>
+
+  <!-- WHEELS & TIRES -->
+  <div class="section s2">
+    <div class="section-head">
+      <div class="section-name"><span class="swatch"></span>Wheels &amp; Tires</div>
+      <div class="section-count">1 setup</div>
+    </div>
+    <ul class="parts">
+      <li><span class="part-name">Apex VS-5 18×10 ET40 · Nankang CR-S V2 275/35R18</span><span class="part-tag">Square</span></li>
+    </ul>
+  </div>
+
+  <!-- ENGINE -->
+  <div class="section s3">
+    <div class="section-head">
+      <div class="section-name"><span class="swatch"></span>Engine</div>
+      <div class="section-count">Management · Long block · Bolt-ons</div>
+    </div>
+
+    <ul class="parts">
+      <li><span class="part-name">Emtron KV8 ECU</span><span class="part-tag">Management</span></li>
+    </ul>
+    <div class="sub">
+      <div class="sub-title">KV8 Sensor Suite</div>
+      <ul>
+        <li><span class="k">Gauge</span><span class="v">52mm CAN gauge</span></li>
+        <li><span class="k">Load</span><span class="v">Speed density</span></li>
+        <li><span class="k">Fuel</span><span class="v">Flex fuel · fuel pressure sensors</span></li>
+        <li><span class="k">Coolant</span><span class="v">Coolant pressure sensor</span></li>
+        <li><span class="k">Oil</span><span class="v">Oil temp · oil pressure sensors</span></li>
+        <li><span class="k">AFR</span><span class="v">Wideband O₂</span></li>
+      </ul>
+    </div>
+
+    <ul class="parts" style="margin-top: 10px;">
+      <li><span class="part-name">PowerTune Digital 7&quot; Display</span><span class="part-tag">Dash</span></li>
+      <li><span class="part-name">IAG 700 Long Block</span><span class="part-tag">Long block</span></li>
+    </ul>
+
+    <div class="sub">
+      <div class="sub-title">Stage 2.5 Closed Deck Short Block</div>
+      <ul>
+        <li><span class="k">Case</span><span class="v">OEM halves, closed-deck conversion, bored &amp; honed 99.75mm</span></li>
+        <li><span class="k">Pistons</span><span class="v">IAG-Spec JE FSR 99.75mm 2618 forged, .210″ 9310 wrist pins</span></li>
+        <li><span class="k">Rods</span><span class="v">IAG-Spec Tuff H-Beam · ARP2000 bolts</span></li>
+        <li><span class="k">Bearings</span><span class="v">ACL or King race</span></li>
+        <li><span class="k">Crank</span><span class="v">OEM nitride 2017+ STI crankshaft</span></li>
+        <li><span class="k">Case bolts</span><span class="v">FHI Subaru OEM</span></li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">Stage 3 Heads</div>
+      <ul>
+        <li><span class="k">Castings</span><span class="v">OEM WRX STI, CNC pocket ported</span></li>
+        <li><span class="k">Intake valves</span><span class="v">GSC 37mm (+1mm)</span></li>
+        <li><span class="k">Exhaust valves</span><span class="v">GSC 33mm (+1mm)</span></li>
+        <li><span class="k">Springs</span><span class="v">GSC single · Ti retainers</span></li>
+        <li><span class="k">Guides &amp; seals</span><span class="v">OEM guides · GSC stem seals</span></li>
+        <li><span class="k">Lifters</span><span class="v">OEM buckets</span></li>
+        <li><span class="k">Cams</span><span class="v">GSC Stage 2 billet</span></li>
+        <li><span class="k">Finish</span><span class="v">Multi-angle valve job · machined lobe clearance · resurface · ultrasonic · final lash</span></li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">Gaskets &amp; Hardware</div>
+      <ul>
+        <li><span class="k">Head studs</span><span class="v">ARP 625+ 11mm</span></li>
+        <li><span class="k">Head gaskets</span><span class="v">OEM</span></li>
+        <li><span class="k">Valve covers</span><span class="v">OEM + OEM gaskets</span></li>
+        <li><span class="k">Cam seals</span><span class="v">OEM</span></li>
+        <li><span class="k">Misc</span><span class="v">Wrist pin seal · rear main seal · separator kit · crank woodruff key</span></li>
+      </ul>
+    </div>
+
+    <ul class="parts" style="margin-top: 10px;">
+      <li><span class="part-name">IAG Timing Belt</span><span class="part-tag">Belt</span></li>
+      <li><span class="part-name">IAG Oil Pan, pickup &amp; windage tray</span><span class="part-tag">Oiling</span></li>
+      <li><span class="part-name">IAG Stage 2 Oil Pump</span><span class="part-tag">Oiling</span></li>
+      <li><span class="part-name">IAG AOS</span><span class="part-tag">Oiling</span></li>
+      <li><span class="part-name">IAG Comp. Motor Mounts</span><span class="part-tag">Mount</span></li>
+      <li><span class="part-name">P2P Racing Oil Cooler Kit</span><span class="part-tag">Cooling</span></li>
+      <li><span class="part-name">BL54XR Stock Location Turbo</span><span class="part-tag">Turbo</span></li>
+      <li><span class="part-name">PWR Intercooler Core</span><span class="part-tag">IC</span></li>
+      <li><span class="part-name">ETS Stock Location Intercooler Piping</span><span class="part-tag">IC piping</span></li>
+      <li><span class="part-name">TiAL Q BOV</span><span class="part-tag">BOV</span></li>
+      <li><span class="part-name">ATI Super Damper</span><span class="part-tag">Damper</span></li>
+      <li><span class="part-name">Koyo Radiator</span><span class="part-tag">Cooling</span></li>
+      <li><span class="part-name">Dom Tune Chamber 4 Mod</span><span class="part-tag">Charge</span></li>
+      <li><span class="part-name">MAP Intake</span><span class="part-tag">Intake</span></li>
+      <li><span class="part-name">Cobb Downpipe</span><span class="part-tag">Exhaust</span></li>
+      <li><span class="part-name">Killer B Hard Inlet</span><span class="part-tag">Intake</span></li>
+      <li><span class="part-name">Killer B Holy Header + Up Pipe, Swain coated</span><span class="part-tag">Exhaust</span></li>
+      <li><span class="part-name">Cobb Ti Exhaust</span><span class="part-tag">Exhaust</span></li>
+      <li><span class="part-name">Walbro 450 Fuel Pump</span><span class="part-tag">Fuel</span></li>
+      <li><span class="part-name">iWire Fuel Pump Hardwire Kit</span><span class="part-tag">Wiring</span></li>
+      <li><span class="part-name">iWire Speed Density Kit</span><span class="part-tag">Wiring</span></li>
+      <li><span class="part-name">Radium Dual Pump Hanger</span><span class="part-tag">Fuel</span></li>
+      <li><span class="part-name">Radium Fuel Pressure Regulator</span><span class="part-tag">Fuel</span></li>
+      <li><span class="part-name">GrimmSpeed EBCS</span><span class="part-tag">Boost</span></li>
+      <li><span class="part-name">ID1300x Injectors</span><span class="part-tag">Fuel</span></li>
+      <li><span class="part-name">Cobb Fuel Rails &amp; Lines</span><span class="part-tag">Fuel</span></li>
+      <li><span class="part-name">TGV Deletes</span><span class="part-tag">Intake</span></li>
+    </ul>
+  </div>
+
+  <!-- DRIVELINE -->
+  <div class="section s4">
+    <div class="section-head">
+      <div class="section-name"><span class="swatch"></span>Driveline</div>
+      <div class="section-count">11 items</div>
+    </div>
+    <ul class="parts">
+      <li><span class="part-name">XClutch Twin Disc Sprung Organic Clutch &amp; Flywheel</span><span class="part-tag">Clutch</span></li>
+      <li><span class="part-name">IAG Comp. Trans Mount</span><span class="part-tag">Mount</span></li>
+      <li><span class="part-name">IAG Comp. Pitch Mount</span><span class="part-tag">Mount</span></li>
+      <li><span class="part-name">Torque Solution Short Shifter w/ 3″ extender</span><span class="part-tag">Shifter</span></li>
+      <li><span class="part-name">Torque Solution Solid Billet Differential Mount</span><span class="part-tag">Mount</span></li>
+      <li><span class="part-name">Torque Solution Solid Shifter U-joint</span><span class="part-tag">Shifter</span></li>
+      <li><span class="part-name">Torque Solution Billet Shifter Bushing</span><span class="part-tag">Shifter</span></li>
+      <li><span class="part-name">Perrin Driveshaft Lock Down</span><span class="part-tag">Driveshaft</span></li>
+      <li><span class="part-name">Perrin Solid Center Driveshaft Mounts</span><span class="part-tag">Mount</span></li>
+      <li><span class="part-name">Torque Solution Billet Positive Shift Kit</span><span class="part-tag">Shifter</span></li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <div class="note-title">Notes</div>
+    <div class="note-text">Build sheet only — torque specs, alignment numbers and tune revisions live in the shop notes. Update this page after each off-season teardown.</div>
+  </div>
+
+  <footer>
+    <span>© 566 · Build sheet</span>
+    <span><a href="index.html">← back to garage</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coolant Calculator — 566 STI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f0f;
+    color: #e8e8e8;
+    padding: 1.5rem;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.25rem;
+  }
+  .brand { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+  .brand a { color: inherit; text-decoration: none; }
+  .brand .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #f59e0b;
+    margin-right: 8px;
+    transform: translateY(-2px);
+  }
+  .crumb { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+  .crumb a { color: #666; text-decoration: none; }
+  .crumb a:hover { color: #aaa; }
+  .crumb .sep { margin: 0 6px; color: #555; }
+  h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.02em;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 520px) {
+    .cards { grid-template-columns: repeat(4, 1fr); }
+  }
+  .card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .card-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  .card.highlight  .card-value { color: #3b82f6; }
+  .card.highlight2 .card-value { color: #10b981; }
+  .card.highlight3 .card-value { color: #f59e0b; }
+
+  .controls {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .control-row { margin-bottom: 1.25rem; }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .control-header label { font-size: 13px; color: #aaa; }
+  .control-header span  { font-size: 13px; font-weight: 600; color: #fff; }
+  input[type="range"] {
+    width: 100%;
+    height: 4px;
+    appearance: none;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+  }
+  #pct::-webkit-slider-thumb  { background: #3b82f6; }
+  #vpamt::-webkit-slider-thumb { background: #f59e0b; }
+  .control-range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+  .control-range-labels span { font-size: 11px; color: #555; }
+
+  .warn {
+    background: #2a1a00;
+    border: 1px solid #5a3a00;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 1.25rem;
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+  }
+  .warn.visible { display: block; }
+
+  .steps {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .steps-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .step { background: #222; border-radius: 8px; padding: 10px 12px; }
+  .step-label { font-size: 12px; font-weight: 600; color: #ddd; margin-bottom: 3px; }
+  .step-sub   { font-size: 11px; color: #666; }
+
+  .note { border-left: 2px solid #333; padding-left: 12px; }
+  .note-title {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+  .note-text { font-size: 12px; color: #555; line-height: 1.5; }
+
+  @media (max-width: 480px) {
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand"><a href="index.html"><span class="dot"></span>566 / STI GARAGE</a></div>
+  <div class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Coolant Calculator</div>
+</div>
+
+<h1>STI Coolant Mix Calculator</h1>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-label">System Capacity</div>
+    <div class="card-value" id="cap-display">9.6 qt</div>
+  </div>
+  <div class="card highlight">
+    <div class="card-label">Coolant Concentrate</div>
+    <div class="card-value" id="coolant-qt">2.9 qt</div>
+    <div class="card-sub" id="coolant-gal">0.72 gal</div>
+  </div>
+  <div class="card highlight2">
+    <div class="card-label">Distilled Water</div>
+    <div class="card-value" id="water-qt">6.7 qt</div>
+    <div class="card-sub" id="water-gal">1.68 gal</div>
+  </div>
+  <div class="card highlight3">
+    <div class="card-label">VP Cool Down</div>
+    <div class="card-value" id="vp-oz">0 oz</div>
+    <div class="card-sub" id="vp-bottles">0 bottles (16 oz)</div>
+  </div>
+</div>
+
+<div id="warn-corrosion" class="warn">
+  ⚠️ Below 25% coolant concentrate — corrosion inhibitor protection is minimal. Only recommended for closed-loop race use with very frequent fluid changes.
+</div>
+<div id="warn-zero" class="warn">
+  ⚠️ 0% coolant = straight water + VP Cool Down only. No glycol freeze or corrosion protection. Race/track use only. Flush and replace before cold weather or storage.
+</div>
+
+<div class="controls">
+  <div class="control-row">
+    <div class="control-header">
+      <label>System capacity (qt)</label>
+      <span id="cap-label">9.6 qt</span>
+    </div>
+    <input type="range" min="7" max="13" step="0.1" value="9.6" id="capacity" />
+    <div class="control-range-labels">
+      <span>7 qt (stock drain)</span>
+      <span>13 qt</span>
+    </div>
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
+      <label>Coolant concentrate %</label>
+      <span id="pct-label">30%</span>
+    </div>
+    <input type="range" min="0" max="50" step="1" value="30" id="pct" />
+    <div class="control-range-labels">
+      <span>0% (water + VP only)</span>
+      <span>50% (standard)</span>
+    </div>
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
+      <label>VP Cool Down (oz per fill)</label>
+      <span id="vp-label">0 oz</span>
+    </div>
+    <input type="range" min="0" max="64" step="8" value="0" id="vpamt" />
+    <div class="control-range-labels">
+      <span>0 oz</span>
+      <span>64 oz (4 bottles)</span>
+    </div>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="steps-title">Pour Sequence</div>
+  <div class="steps-grid" id="steps-grid"></div>
+</div>
+
+<div class="note">
+  <div class="note-title">Build Notes</div>
+  <div class="note-text">FSM spec is 8.1 qt. Koyo adds ~1.5 qt → ~9.6 qt total. PWR Track Spec may vary. Fill to level marks, not by volume. Burp with nose elevated. Change annually at 70/30 — more frequently below 25% glycol. VP Cool Down is added last after system is filled and running.</div>
+</div>
+
+<script>
+  const capSlider = document.getElementById('capacity');
+  const pctSlider = document.getElementById('pct');
+  const vpSlider  = document.getElementById('vpamt');
+
+  function update() {
+    const cap    = parseFloat(capSlider.value);
+    const pct    = parseInt(pctSlider.value);
+    const vpOz   = parseInt(vpSlider.value);
+
+    const coolantQt  = cap * pct / 100;
+    const waterQt    = cap - coolantQt;
+    const coolantGal = coolantQt / 4;
+    const waterGal   = waterQt / 4;
+    const vpBottles  = vpOz / 16;
+
+    document.getElementById('cap-display').textContent  = cap.toFixed(1) + ' qt';
+    document.getElementById('cap-label').textContent    = cap.toFixed(1) + ' qt';
+    document.getElementById('pct-label').textContent    = pct + '%';
+    document.getElementById('vp-label').textContent     = vpOz + ' oz';
+
+    document.getElementById('coolant-qt').textContent   = coolantQt.toFixed(1) + ' qt';
+    document.getElementById('coolant-gal').textContent  = coolantGal.toFixed(2) + ' gal';
+    document.getElementById('water-qt').textContent     = waterQt.toFixed(1) + ' qt';
+    document.getElementById('water-gal').textContent    = waterGal.toFixed(2) + ' gal';
+    document.getElementById('vp-oz').textContent        = vpOz + ' oz';
+    document.getElementById('vp-bottles').textContent   = vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ' (16 oz ea)';
+
+    // Warnings
+    document.getElementById('warn-zero').classList.toggle('visible', pct === 0);
+    document.getElementById('warn-corrosion').classList.toggle('visible', pct > 0 && pct < 25);
+
+    // Steps — skip concentrate step if 0%
+    const steps = [];
+    steps.push({ label: '1. Drain fully', sub: 'dispose of old coolant properly' });
+    if (pct > 0) {
+      steps.push({ label: '2. Pour concentrate', sub: coolantQt.toFixed(1) + ' qt (' + coolantGal.toFixed(2) + ' gal)' });
+      steps.push({ label: '3. Top with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterGal.toFixed(2) + ' gal)' });
+      steps.push({ label: '4. Burp system', sub: 'run to temp, bleed air pockets' });
+      if (vpOz > 0) {
+        steps.push({ label: '5. Add VP Cool Down', sub: vpOz + ' oz (' + vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ') — add to reservoir while running' });
+      }
+    } else {
+      steps.push({ label: '2. Fill with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterGal.toFixed(2) + ' gal)' });
+      steps.push({ label: '3. Burp system', sub: 'run to temp, bleed air pockets' });
+      if (vpOz > 0) {
+        steps.push({ label: '4. Add VP Cool Down', sub: vpOz + ' oz (' + vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ') — add to reservoir while running' });
+      }
+    }
+
+    document.getElementById('steps-grid').innerHTML = steps.map(s => `
+      <div class="step">
+        <div class="step-label">${s.label}</div>
+        <div class="step-sub">${s.sub}</div>
+      </div>
+    `).join('');
+  }
+
+  capSlider.addEventListener('input', update);
+  pctSlider.addEventListener('input', update);
+  vpSlider.addEventListener('input', update);
+  update();
+</script>
+
+</div><!-- /.wrap -->
+</body>
+</html>
