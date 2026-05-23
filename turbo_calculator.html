@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turbo Sizing Calculator — 566 STI</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f0f0f;
+  color: #e8e8e8;
+  padding: 1.5rem;
+  min-height: 100vh;
+}
+.wrap { max-width: 960px; margin: 0 auto; }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.25rem;
+}
+.brand { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand a { color: inherit; text-decoration: none; }
+.brand .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  margin-right: 8px;
+  transform: translateY(-2px);
+}
+.crumb { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+.crumb a { color: #666; text-decoration: none; }
+.crumb a:hover { color: #aaa; }
+.crumb .sep { margin: 0 6px; color: #555; }
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 520px) {
+  .cards { grid-template-columns: repeat(4, 1fr); }
+}
+.card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px;
+}
+.card-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+}
+.card-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+.card.highlight .card-value { color: #3b82f6; }
+.card.highlight2 .card-value { color: #10b981; }
+.card.highlight3 .card-value { color: #f59e0b; }
+
+.controls {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.section-title:not(:first-child) {
+  margin-top: 1.75rem;
+}
+.control-row { margin-bottom: 1.25rem; }
+.control-row:last-child { margin-bottom: 0; }
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+.control-header label {
+  font-size: 13px;
+  color: #aaa;
+  flex: 1;
+  min-width: 0;
+}
+.num-input {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 8px;
+  width: 90px;
+  text-align: right;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  flex-shrink: 0;
+}
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.num-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+}
+.slider-amber::-webkit-slider-thumb { background: #f59e0b; }
+.slider-amber::-moz-range-thumb { background: #f59e0b; }
+.slider-green::-webkit-slider-thumb { background: #10b981; }
+.slider-green::-moz-range-thumb { background: #10b981; }
+
+.control-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+.control-range-labels span { font-size: 11px; color: #555; }
+
+.steps {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.steps-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 12px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.step { background: #222; border-radius: 8px; padding: 10px 12px; }
+.step-label { font-size: 12px; font-weight: 600; color: #ddd; margin-bottom: 4px; }
+.step-formula {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.step-result {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #666;
+  word-break: break-word;
+}
+.step-result strong { color: #ccc; font-weight: 600; }
+
+.note { border-left: 2px solid #333; padding-left: 12px; }
+.note-title {
+  font-size: 11px; font-weight: 600; color: #888;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.note-text { font-size: 12px; color: #666; line-height: 1.55; margin-bottom: 8px; }
+.note-text:last-child { margin-bottom: 0; }
+.note-text strong { color: #999; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand"><a href="index.html"><span class="dot"></span>566 / STI GARAGE</a></div>
+  <div class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Turbo Sizing Calculator</div>
+</div>
+
+<h1>EJ257 Turbo Sizing Calculator</h1>
+
+<div class="cards">
+  <div class="card highlight">
+    <div class="card-label">Required Airflow</div>
+    <div class="card-value" id="airflow-display">— lb/min</div>
+  </div>
+  <div class="card highlight2">
+    <div class="card-label">Manifold Pressure</div>
+    <div class="card-value" id="map-display">— psia</div>
+    <div class="card-sub" id="boost-display">— psi boost</div>
+  </div>
+  <div class="card highlight3">
+    <div class="card-label">Pressure Ratio</div>
+    <div class="card-value" id="pr-display">—</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Crank HP Target</div>
+    <div class="card-value" id="hp-display">— hp</div>
+  </div>
+</div>
+
+<div class="controls">
+
+<div class="section-title">Power Target &amp; Fueling</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>HP Target (crank)</label>
+    <input type="number" class="num-input" id="hp-num" value="500" step="10" min="50" max="2000">
+  </div>
+  <input type="range" min="100" max="1200" step="10" value="500" id="hp-slider">
+  <div class="control-range-labels">
+    <span>100 hp</span>
+    <span>1200 hp</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>AFR (target at WOT)</label>
+    <input type="number" class="num-input" id="afr-num" value="11.5" step="0.1" min="9" max="20">
+  </div>
+  <input type="range" min="10.0" max="14.7" step="0.1" value="11.5" id="afr-slider">
+  <div class="control-range-labels">
+    <span>10.0 (very rich)</span>
+    <span>14.7 (stoich)</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>BSFC (lb/hp·hr)</label>
+    <input type="number" class="num-input" id="bsfc-num" value="0.63" step="0.01" min="0.3" max="1.0">
+  </div>
+  <input type="range" min="0.45" max="0.75" step="0.01" value="0.63" id="bsfc-slider">
+  <div class="control-range-labels">
+    <span>0.45 (efficient)</span>
+    <span>0.75 (conservative)</span>
+  </div>
+</div>
+
+<div class="section-title">Engine Specs</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Displacement (cu in)</label>
+    <input type="number" class="num-input" id="cid-num" value="150" step="0.1" min="50" max="500">
+  </div>
+  <input type="range" min="100" max="200" step="0.1" value="150" id="cid-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>100 ci</span>
+    <span>200 ci</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Max RPM</label>
+    <input type="number" class="num-input" id="rpm-num" value="7000" step="100" min="3000" max="12000">
+  </div>
+  <input type="range" min="5000" max="9000" step="100" value="7000" id="rpm-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>5,000 rpm</span>
+    <span>9,000 rpm</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Volumetric Efficiency</label>
+    <input type="number" class="num-input" id="ve-num" value="1.00" step="0.01" min="0.5" max="1.5">
+  </div>
+  <input type="range" min="0.70" max="1.20" step="0.01" value="1.00" id="ve-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>0.70 (stock NA)</span>
+    <span>1.20 (race built)</span>
+  </div>
+</div>
+
+<div class="section-title">Conditions &amp; Losses</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Intake Air Temp (°F, post-IC)</label>
+    <input type="number" class="num-input" id="iat-num" value="110" step="1" min="0" max="400">
+  </div>
+  <input type="range" min="60" max="200" step="1" value="110" id="iat-slider" class="slider-amber">
+  <div class="control-range-labels">
+    <span>60 °F (great IC)</span>
+    <span>200 °F (poor IC)</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Ambient Pressure (psi)</label>
+    <input type="number" class="num-input" id="amb-num" value="14.7" step="0.1" min="8" max="16">
+  </div>
+  <input type="range" min="12.0" max="15.0" step="0.1" value="14.7" id="amb-slider" class="slider-amber">
+  <div class="control-range-labels">
+    <span>12.0 (high alt)</span>
+    <span>15.0 (sea level)</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Pressure Drop ΔP (filter + IC + piping)</label>
+    <input type="number" class="num-input" id="dp-num" value="4.5" step="0.1" min="0" max="20">
+  </div>
+  <input type="range" min="0" max="10" step="0.1" value="4.5" id="dp-slider" class="slider-amber">
+  <div class="control-range-labels">
+    <span>0 psi</span>
+    <span>10 psi</span>
+  </div>
+</div>
+
+</div><!-- /.controls -->
+
+<div class="steps">
+  <div class="steps-title">Calculation Steps</div>
+  <div class="steps-grid" id="steps-grid"></div>
+</div>
+
+<div class="note">
+  <div class="note-title">Build Notes</div>
+  <div class="note-text">
+    <strong>Defaults set for stock EJ257</strong> — 150 ci / 2,457 cc (99.5 mm × 79 mm). Bump displacement for overbore/stroker builds. The original spreadsheet used 151.07 ci, which implies ~99.85 mm bore — adjust if your build is actually overbored.
+  </div>
+  <div class="note-text">
+    <strong>BSFC</strong> defaults to 0.63 to match the source spreadsheet. Garrett's published guideline for gas turbo is 0.55. Lower BSFC means a more efficient engine and a smaller required turbo. Keeping a higher BSFC builds in a safety margin for sizing.
+  </div>
+  <div class="note-text">
+    <strong>VE 1.00</strong> assumes a well-built motor with good cams and big plumbing. Stock long-block with stock cams runs closer to 0.92–0.95 at peak.
+  </div>
+  <div class="note-text">
+    <strong>IAT 110 °F</strong> is post-intercooler. Air-to-air FMIC at full boost typically lands 100–130 °F; air-to-water can drop to 80–100 °F; stock/undersized cores climb past 140 °F. Hotter air = lower density = more airflow needed for the same mass.
+  </div>
+  <div class="note-text">
+    <strong>ΔP (Pressure Drop)</strong> accounts for losses across the air filter, intercooler core, charge piping, and throttle body. 4.5 psi is reasonable for a well-built setup with a quality FMIC; restrictive setups can hit 6–8 psi.
+  </div>
+  <div class="note-text">
+    <strong>Formulas:</strong> Airflow = (HP × AFR × BSFC) / 60 · MAP = (Airflow × R × (IAT + 460)) / (VE × RPM/2 × CID), R = 639.6 · Boost = MAP − Ambient · PR = (MAP + ΔP) / Ambient
+  </div>
+</div>
+
+<script>
+const R = 639.6; // gas constant for air, in·lbf/(lbm·°R)
+
+const pairs = [
+  ['hp-slider', 'hp-num'],
+  ['afr-slider', 'afr-num'],
+  ['bsfc-slider', 'bsfc-num'],
+  ['cid-slider', 'cid-num'],
+  ['rpm-slider', 'rpm-num'],
+  ['ve-slider', 've-num'],
+  ['iat-slider', 'iat-num'],
+  ['amb-slider', 'amb-num'],
+  ['dp-slider', 'dp-num'],
+];
+
+function bind(sliderId, numId) {
+  const slider = document.getElementById(sliderId);
+  const num = document.getElementById(numId);
+
+  slider.addEventListener('input', () => {
+    num.value = slider.value;
+    update();
+  });
+
+  num.addEventListener('input', () => {
+    const v = parseFloat(num.value);
+    if (!isNaN(v)) {
+      const sMin = parseFloat(slider.min);
+      const sMax = parseFloat(slider.max);
+      slider.value = Math.max(sMin, Math.min(sMax, v));
+      update();
+    }
+  });
+}
+
+pairs.forEach(([s, n]) => bind(s, n));
+
+function getNum(id, fallback) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? fallback : v;
+}
+
+function fmt(n, d) {
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+function update() {
+  const hp   = getNum('hp-num',   500);
+  const afr  = getNum('afr-num',  11.5);
+  const bsfc = getNum('bsfc-num', 0.63);
+  const cid  = getNum('cid-num',  150);
+  const rpm  = getNum('rpm-num',  7000);
+  const ve   = getNum('ve-num',   1.00);
+  const iat  = getNum('iat-num',  110);
+  const amb  = getNum('amb-num',  14.7);
+  const dp   = getNum('dp-num',   4.5);
+
+  const airflow      = (hp * afr * bsfc) / 60;
+  const tempRankine  = iat + 460;
+  const numerator    = airflow * R * tempRankine;
+  const denominator  = ve * (rpm / 2) * cid;
+  const map          = numerator / denominator;
+  const boost        = map - amb;
+  const pr           = (map + dp) / amb;
+
+  document.getElementById('airflow-display').textContent = fmt(airflow, 1) + ' lb/min';
+  document.getElementById('map-display').textContent     = fmt(map, 1) + ' psia';
+  document.getElementById('boost-display').textContent   = fmt(boost, 1) + ' psi boost';
+  document.getElementById('pr-display').textContent      = fmt(pr, 2);
+  document.getElementById('hp-display').textContent      = fmt(hp, 0) + ' hp';
+
+  const steps = [
+    {
+      label: '1. Required Airflow',
+      formula: '(HP × AFR × BSFC) / 60',
+      result: `(${fmt(hp,0)} × ${fmt(afr,2)} × ${fmt(bsfc,2)}) / 60 = <strong>${fmt(airflow,2)} lb/min</strong>`
+    },
+    {
+      label: '2. Manifold Pressure (absolute)',
+      formula: '(Airflow × 639.6 × (IAT + 460)) / (VE × RPM/2 × CID)',
+      result: `(${fmt(airflow,2)} × 639.6 × ${fmt(tempRankine,0)}) / (${fmt(ve,2)} × ${fmt(rpm/2,0)} × ${fmt(cid,2)}) = ${fmt(numerator,0)} / ${fmt(denominator,0)} = <strong>${fmt(map,2)} psia</strong>`
+    },
+    {
+      label: '3. Boost Pressure (gauge)',
+      formula: 'MAP − Ambient',
+      result: `${fmt(map,2)} − ${fmt(amb,1)} = <strong>${fmt(boost,2)} psi</strong>`
+    },
+    {
+      label: '4. Pressure Ratio',
+      formula: '(MAP + ΔP) / Ambient',
+      result: `(${fmt(map,2)} + ${fmt(dp,1)}) / ${fmt(amb,1)} = <strong>${fmt(pr,3)}</strong>`
+    },
+  ];
+
+  document.getElementById('steps-grid').innerHTML = steps.map(s => `
+    <div class="step">
+      <div class="step-label">${s.label}</div>
+      <div class="step-formula">${s.formula}</div>
+      <div class="step-result">${s.result}</div>
+    </div>
+  `).join('');
+}
+
+update();
+</script>
+
+</div><!-- /.wrap -->
+</body>
+</html>
