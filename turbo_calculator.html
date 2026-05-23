@@ -79,7 +79,7 @@ h1 {
 .card.highlight2 .card-value { color: #10b981; }
 .card.highlight3 .card-value { color: #f59e0b; }
 
-.controls {
+.controls, .map-wrap, .steps {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 10px;
@@ -172,13 +172,97 @@ input[type="range"]::-moz-range-thumb {
 }
 .control-range-labels span { font-size: 11px; color: #555; }
 
-.steps {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 10px;
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
+/* Map section */
+.map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 1rem;
 }
+.turbo-select {
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-width: 240px;
+}
+.turbo-select:focus { outline: none; border-color: #3b82f6; }
+.turbo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 1rem;
+}
+.turbo-meta strong { color: #aaa; font-weight: 600; }
+.svg-wrap {
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.svg-wrap svg { width: 100%; height: auto; display: block; }
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 1rem;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-line { width: 18px; height: 2px; }
+.legend-line.solid-red { background: #ef4444; }
+.legend-line.dash-red {
+  background-image: linear-gradient(to right, #ef4444 0, #ef4444 5px, transparent 5px, transparent 8px);
+  background-size: 8px 2px;
+  background-repeat: repeat-x;
+}
+.legend-line.solid-green { background: #10b981; }
+.legend-island {
+  width: 14px; height: 8px;
+  background: rgba(59,130,246,0.18);
+  border: 1px dashed #3b82f6;
+}
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; border: 1px solid #0f0f0f; }
+
+/* Trajectory table */
+.traj-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.traj-table th, .traj-table td {
+  padding: 6px 10px;
+  text-align: right;
+  border-bottom: 1px solid #222;
+}
+.traj-table th {
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  font-family: inherit;
+}
+.traj-table td:first-child, .traj-table th:first-child {
+  text-align: left;
+  color: #ddd;
+}
+.traj-table tr.peak td { color: #10b981; font-weight: 600; }
+.traj-table tr.over-surge td { color: #ef4444; }
+.traj-table tr.over-choke td { color: #f59e0b; }
+
+/* Steps */
 .steps-title {
   font-size: 11px;
   text-transform: uppercase;
@@ -208,6 +292,27 @@ input[type="range"]::-moz-range-thumb {
 }
 .step-result strong { color: #ccc; font-weight: 600; }
 
+/* Fuel select */
+.fuel-select {
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+}
+.fuel-select:focus { outline: none; border-color: #3b82f6; }
+.fuel-help {
+  font-size: 11px;
+  color: #555;
+  margin-top: 6px;
+}
+
+/* Notes */
 .note { border-left: 2px solid #333; padding-left: 12px; }
 .note-title {
   font-size: 11px; font-weight: 600; color: #888;
@@ -254,6 +359,17 @@ input[type="range"]::-moz-range-thumb {
 
 <div class="control-row">
   <div class="control-header">
+    <label>Fuel</label>
+  </div>
+  <select id="fuel-select" class="fuel-select">
+    <option value="93" selected>91/93 Pump Gas</option>
+    <option value="e85">E85</option>
+  </select>
+  <div class="fuel-help" id="fuel-help">Stoich AFR 14.7 · Typical WOT 11.0–11.8 · BSFC typically 0.50–0.65</div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
     <label>HP Target (crank)</label>
     <input type="number" class="num-input" id="hp-num" value="500" step="10" min="50" max="2000">
   </div>
@@ -267,24 +383,24 @@ input[type="range"]::-moz-range-thumb {
 <div class="control-row">
   <div class="control-header">
     <label>AFR (target at WOT)</label>
-    <input type="number" class="num-input" id="afr-num" value="11.5" step="0.1" min="9" max="20">
+    <input type="number" class="num-input" id="afr-num" value="11.5" step="0.1" min="5" max="20">
   </div>
   <input type="range" min="10.0" max="14.7" step="0.1" value="11.5" id="afr-slider">
   <div class="control-range-labels">
-    <span>10.0 (very rich)</span>
-    <span>14.7 (stoich)</span>
+    <span id="afr-label-min">10.0 (very rich)</span>
+    <span id="afr-label-max">14.7 (stoich)</span>
   </div>
 </div>
 
 <div class="control-row">
   <div class="control-header">
     <label>BSFC (lb/hp·hr)</label>
-    <input type="number" class="num-input" id="bsfc-num" value="0.63" step="0.01" min="0.3" max="1.0">
+    <input type="number" class="num-input" id="bsfc-num" value="0.63" step="0.01" min="0.3" max="1.2">
   </div>
   <input type="range" min="0.45" max="0.75" step="0.01" value="0.63" id="bsfc-slider">
   <div class="control-range-labels">
-    <span>0.45 (efficient)</span>
-    <span>0.75 (conservative)</span>
+    <span id="bsfc-label-min">0.45 (efficient)</span>
+    <span id="bsfc-label-max">0.75 (conservative)</span>
   </div>
 </div>
 
@@ -304,7 +420,7 @@ input[type="range"]::-moz-range-thumb {
 
 <div class="control-row">
   <div class="control-header">
-    <label>Max RPM</label>
+    <label>Max RPM (redline)</label>
     <input type="number" class="num-input" id="rpm-num" value="7000" step="100" min="3000" max="12000">
   </div>
   <input type="range" min="5000" max="9000" step="100" value="7000" id="rpm-slider" class="slider-green">
@@ -316,7 +432,7 @@ input[type="range"]::-moz-range-thumb {
 
 <div class="control-row">
   <div class="control-header">
-    <label>Volumetric Efficiency</label>
+    <label>Volumetric Efficiency (peak)</label>
     <input type="number" class="num-input" id="ve-num" value="1.00" step="0.01" min="0.5" max="1.5">
   </div>
   <input type="range" min="0.70" max="1.20" step="0.01" value="1.00" id="ve-slider" class="slider-green">
@@ -364,29 +480,125 @@ input[type="range"]::-moz-range-thumb {
   </div>
 </div>
 
+<div class="section-title">Engine Curve (for map trajectory)</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Spool RPM (boost starts climbing)</label>
+    <input type="number" class="num-input" id="spool-num" value="3500" step="100" min="1500" max="7000">
+  </div>
+  <input type="range" min="2500" max="5500" step="100" value="3500" id="spool-slider">
+  <div class="control-range-labels">
+    <span>2,500 rpm</span>
+    <span>5,500 rpm</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Peak Torque RPM (full boost reached)</label>
+    <input type="number" class="num-input" id="ptq-num" value="4500" step="100" min="2500" max="8000">
+  </div>
+  <input type="range" min="3500" max="6500" step="100" value="4500" id="ptq-slider">
+  <div class="control-range-labels">
+    <span>3,500 rpm</span>
+    <span>6,500 rpm</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Peak HP RPM (boost taper starts above)</label>
+    <input type="number" class="num-input" id="php-num" value="6500" step="100" min="3500" max="9000">
+  </div>
+  <input type="range" min="5500" max="8000" step="100" value="6500" id="php-slider">
+  <div class="control-range-labels">
+    <span>5,500 rpm</span>
+    <span>8,000 rpm</span>
+  </div>
+</div>
+
 </div><!-- /.controls -->
 
 <div class="steps">
-  <div class="steps-title">Calculation Steps</div>
+  <div class="steps-title">Calculation Steps (peak conditions)</div>
   <div class="steps-grid" id="steps-grid"></div>
+</div>
+
+<div class="map-wrap">
+  <div class="steps-title">Compressor Map &amp; Engine Trajectory</div>
+
+  <div class="map-toolbar">
+    <select id="turbo-select" class="turbo-select">
+      <optgroup label="Garrett G-Series">
+        <option value="g25-660">Garrett G25-660</option>
+        <option value="g30-660" selected>Garrett G30-660</option>
+        <option value="g30-770">Garrett G30-770</option>
+        <option value="g35-900">Garrett G35-900</option>
+      </optgroup>
+      <optgroup label="BorgWarner EFR">
+        <option value="efr-7163">BorgWarner EFR 7163</option>
+        <option value="efr-7670">BorgWarner EFR 7670</option>
+        <option value="efr-8374">BorgWarner EFR 8374</option>
+      </optgroup>
+      <optgroup label="Turbosmart TS-2">
+        <option value="ts2-5862">Turbosmart TS-2 5862</option>
+        <option value="ts2-6262">Turbosmart TS-2 6262</option>
+        <option value="ts2-6466">Turbosmart TS-2 6466</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="turbo-meta" id="turbo-meta"></div>
+
+  <div class="svg-wrap">
+    <svg id="compressor-map" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="map-legend">
+    <span class="legend-item"><span class="legend-line solid-red"></span>Surge line</span>
+    <span class="legend-item"><span class="legend-line dash-red"></span>Choke line</span>
+    <span class="legend-item"><span class="legend-island"></span>Peak efficiency</span>
+    <span class="legend-item"><span class="legend-line solid-green"></span>Engine trajectory</span>
+    <span class="legend-item"><span class="legend-dot"></span>500-rpm step</span>
+  </div>
+
+  <table class="traj-table" id="traj-table">
+    <thead>
+      <tr>
+        <th>RPM</th>
+        <th>Flow (lb/min)</th>
+        <th>PR</th>
+        <th>Boost (psi)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="traj-tbody"></tbody>
+  </table>
 </div>
 
 <div class="note">
   <div class="note-title">Build Notes</div>
   <div class="note-text">
-    <strong>Defaults set for stock EJ257</strong> — 150 ci / 2,457 cc (99.5 mm × 79 mm). Bump displacement for overbore/stroker builds. The original spreadsheet used 151.07 ci, which implies ~99.85 mm bore — adjust if your build is actually overbored.
+    <strong>Defaults set for stock EJ257</strong> — 150 ci / 2,457 cc (99.5 mm × 79 mm). Bump displacement for overbore/stroker builds. The source spreadsheet used 151.07 ci, which implies ~99.85 mm bore — adjust if your build is actually overbored.
   </div>
   <div class="note-text">
-    <strong>BSFC</strong> defaults to 0.63 to match the source spreadsheet. Garrett's published guideline for gas turbo is 0.55. Lower BSFC means a more efficient engine and a smaller required turbo. Keeping a higher BSFC builds in a safety margin for sizing.
+    <strong>Fuel selection</strong> — Picking 93 or E85 from the dropdown loads typical AFR and BSFC defaults plus appropriate slider ranges. E85's stoichiometric AFR is 9.765 (vs 14.7 for gasoline) and BSFC runs about 35% higher because ethanol has lower energy density per pound. Counterintuitively, the air-flow per HP is actually slightly <em>lower</em> on E85 — ethanol carries oxygen in the fuel molecule, so the AFR × BSFC product comes out lower. In practice E85's bigger advantage is knock resistance, which lets you run more boost (and more HP) for the same compressor flow.
   </div>
   <div class="note-text">
-    <strong>VE 1.00</strong> assumes a well-built motor with good cams and big plumbing. Stock long-block with stock cams runs closer to 0.92–0.95 at peak.
+    <strong>BSFC</strong> defaults to 0.63 on 93 to match the source spreadsheet. Garrett's published guideline for gas turbo is 0.55. Lower BSFC means a more efficient engine and a smaller required turbo. Keeping a higher BSFC builds in a safety margin for sizing.
   </div>
   <div class="note-text">
-    <strong>IAT 110 °F</strong> is post-intercooler. Air-to-air FMIC at full boost typically lands 100–130 °F; air-to-water can drop to 80–100 °F; stock/undersized cores climb past 140 °F. Hotter air = lower density = more airflow needed for the same mass.
+    <strong>VE 1.00</strong> represents the engine's peak volumetric efficiency, used at peak operating conditions. A well-built motor with good cams and big plumbing hits 1.0; stock long-blocks with stock cams run closer to 0.92–0.95.
   </div>
   <div class="note-text">
-    <strong>ΔP (Pressure Drop)</strong> accounts for losses across the air filter, intercooler core, charge piping, and throttle body. 4.5 psi is reasonable for a well-built setup with a quality FMIC; restrictive setups can hit 6–8 psi.
+    <strong>Engine Curve</strong> — Spool / Peak Torque / Peak HP define how boost ramps across the RPM band: zero below Spool, linear ramp from Spool to Peak Torque (where full boost is reached), held flat through Peak HP, then a small taper above (5%/1000 rpm). Set Peak HP equal to redline if you want no taper.
+  </div>
+  <div class="note-text">
+    <strong>Compressor maps</strong> shown here are approximations derived from each manufacturer's published specifications (max flow, max PR, peak efficiency location, geometry). They're useful for relative comparison and to see roughly where the engine sits — but for authoritative numbers always cross-reference Garrett's, BorgWarner's, or Turbosmart's official map PDFs. Trajectory points (green) are computed directly from your inputs.
+  </div>
+  <div class="note-text">
+    <strong>Reading the map</strong> — Operating points should fall inside or near the efficiency island during peak power. Points LEFT of the surge line risk compressor surge. Points RIGHT of the choke line mean you've exceeded the compressor's flow capacity (turbo too small for your power target).
   </div>
   <div class="note-text">
     <strong>Formulas:</strong> Airflow = (HP × AFR × BSFC) / 60 · MAP = (Airflow × R × (IAT + 460)) / (VE × RPM/2 × CID), R = 639.6 · Boost = MAP − Ambient · PR = (MAP + ΔP) / Ambient
@@ -394,8 +606,102 @@ input[type="range"]::-moz-range-thumb {
 </div>
 
 <script>
-const R = 639.6; // gas constant for air, in·lbf/(lbm·°R)
+const R = 639.6;
 
+/* ============================================================
+   Turbo map data
+   Parameterized from manufacturer published specs.
+   Each turbo has:
+     - surge: anchor points (PR, flow) defining the surge line
+     - choke: anchor points (PR, flow) defining the choke line
+     - peakEff: peak efficiency island center + semi-axes
+============================================================ */
+const turboMaps = {
+  'g25-660': {
+    name: 'Garrett G25-660',
+    specs: '49.6 / 60 mm compressor · ball bearing · 175k rpm max',
+    hpRange: '370 – 660 hp',
+    surge: [{pr:1.3,flow:4},{pr:2.0,flow:9},{pr:2.5,flow:13},{pr:3.0,flow:18},{pr:3.5,flow:23},{pr:4.0,flow:29}],
+    choke: [{pr:1.3,flow:58},{pr:2.0,flow:57},{pr:2.5,flow:55},{pr:3.0,flow:53},{pr:3.5,flow:50},{pr:4.0,flow:47}],
+    peakEff: {flow:33, pr:2.4, eff:0.76, flowSemi:9, prSemi:0.45},
+  },
+  'g30-660': {
+    name: 'Garrett G30-660',
+    specs: '54 / 67 mm compressor · ball bearing · 165k rpm max',
+    hpRange: '350 – 660 hp',
+    surge: [{pr:1.3,flow:5},{pr:2.0,flow:10},{pr:2.5,flow:15},{pr:3.0,flow:21},{pr:3.5,flow:27},{pr:4.0,flow:33}],
+    choke: [{pr:1.3,flow:78},{pr:2.0,flow:77},{pr:2.5,flow:75},{pr:3.0,flow:72},{pr:3.5,flow:68},{pr:4.0,flow:63}],
+    peakEff: {flow:44, pr:2.5, eff:0.76, flowSemi:11, prSemi:0.5},
+  },
+  'g30-770': {
+    name: 'Garrett G30-770',
+    specs: '58 / 71 mm compressor · ball bearing · 165k rpm max',
+    hpRange: '400 – 770 hp',
+    surge: [{pr:1.3,flow:6},{pr:2.0,flow:12},{pr:2.5,flow:18},{pr:3.0,flow:24},{pr:3.5,flow:31},{pr:4.0,flow:38}],
+    choke: [{pr:1.3,flow:86},{pr:2.0,flow:85},{pr:2.5,flow:83},{pr:3.0,flow:80},{pr:3.5,flow:76},{pr:4.0,flow:71}],
+    peakEff: {flow:50, pr:2.6, eff:0.77, flowSemi:12, prSemi:0.55},
+  },
+  'g35-900': {
+    name: 'Garrett G35-900',
+    specs: '62 / 76 mm compressor · ball bearing · 152k rpm max',
+    hpRange: '475 – 900 hp',
+    surge: [{pr:1.3,flow:8},{pr:2.0,flow:15},{pr:2.5,flow:21},{pr:3.0,flow:28},{pr:3.5,flow:36},{pr:4.2,flow:46}],
+    choke: [{pr:1.3,flow:95},{pr:2.0,flow:94},{pr:2.5,flow:92},{pr:3.0,flow:88},{pr:3.5,flow:83},{pr:4.2,flow:75}],
+    peakEff: {flow:58, pr:2.7, eff:0.78, flowSemi:14, prSemi:0.6},
+  },
+  'efr-7163': {
+    name: 'BorgWarner EFR 7163',
+    specs: '57 / 71 mm compressor · ball bearing · ~129k rpm max',
+    hpRange: '~600 hp',
+    surge: [{pr:1.3,flow:3},{pr:2.0,flow:7},{pr:2.5,flow:11},{pr:3.0,flow:16},{pr:3.5,flow:21},{pr:4.5,flow:32}],
+    choke: [{pr:1.3,flow:60},{pr:2.0,flow:59},{pr:2.5,flow:57},{pr:3.0,flow:55},{pr:3.5,flow:52},{pr:4.5,flow:46}],
+    peakEff: {flow:37, pr:2.5, eff:0.78, flowSemi:10, prSemi:0.5},
+  },
+  'efr-7670': {
+    name: 'BorgWarner EFR 7670',
+    specs: '57.2 / 76 mm compressor · ball bearing · ~125k rpm max',
+    hpRange: '~650 hp',
+    surge: [{pr:1.3,flow:3},{pr:2.0,flow:8},{pr:2.5,flow:12},{pr:3.0,flow:17},{pr:3.5,flow:22},{pr:4.5,flow:34}],
+    choke: [{pr:1.3,flow:64},{pr:2.0,flow:63},{pr:2.5,flow:62},{pr:3.0,flow:60},{pr:3.5,flow:57},{pr:4.5,flow:50}],
+    peakEff: {flow:40, pr:2.5, eff:0.78, flowSemi:11, prSemi:0.55},
+  },
+  'efr-8374': {
+    name: 'BorgWarner EFR 8374',
+    specs: '62.6 / 83 mm compressor · ball bearing · ~115k rpm max',
+    hpRange: '~800 hp',
+    surge: [{pr:1.3,flow:5},{pr:2.0,flow:11},{pr:2.5,flow:16},{pr:3.0,flow:22},{pr:3.5,flow:28},{pr:4.2,flow:38}],
+    choke: [{pr:1.3,flow:79},{pr:2.0,flow:78},{pr:2.5,flow:76},{pr:3.0,flow:73},{pr:3.5,flow:69},{pr:4.2,flow:63}],
+    peakEff: {flow:48, pr:2.6, eff:0.80, flowSemi:12, prSemi:0.55},
+  },
+  'ts2-5862': {
+    name: 'Turbosmart TS-2 5862',
+    specs: '58 / 62 mm compressor · ball bearing',
+    hpRange: '660 – 720 hp',
+    surge: [{pr:1.3,flow:4},{pr:2.0,flow:9},{pr:2.5,flow:13},{pr:3.0,flow:18},{pr:3.5,flow:23},{pr:3.8,flow:27}],
+    choke: [{pr:1.3,flow:62},{pr:2.0,flow:61},{pr:2.5,flow:60},{pr:3.0,flow:58},{pr:3.5,flow:55},{pr:3.8,flow:52}],
+    peakEff: {flow:38, pr:2.5, eff:0.76, flowSemi:10, prSemi:0.45},
+  },
+  'ts2-6262': {
+    name: 'Turbosmart TS-2 6262',
+    specs: '62 / 62 mm compressor · ball bearing',
+    hpRange: '760 – 880 hp',
+    surge: [{pr:1.3,flow:5},{pr:2.0,flow:10},{pr:2.5,flow:15},{pr:3.0,flow:21},{pr:3.5,flow:27},{pr:3.8,flow:31}],
+    choke: [{pr:1.3,flow:74},{pr:2.0,flow:73},{pr:2.5,flow:72},{pr:3.0,flow:69},{pr:3.5,flow:65},{pr:3.8,flow:62}],
+    peakEff: {flow:43, pr:2.6, eff:0.76, flowSemi:11, prSemi:0.5},
+  },
+  'ts2-6466': {
+    name: 'Turbosmart TS-2 6466',
+    specs: '64 / 66 mm compressor · ball bearing',
+    hpRange: '825 – 955 hp',
+    surge: [{pr:1.3,flow:6},{pr:2.0,flow:12},{pr:2.5,flow:18},{pr:3.0,flow:25},{pr:3.5,flow:31},{pr:3.8,flow:35}],
+    choke: [{pr:1.3,flow:85},{pr:2.0,flow:84},{pr:2.5,flow:83},{pr:3.0,flow:80},{pr:3.5,flow:75},{pr:3.8,flow:71}],
+    peakEff: {flow:50, pr:2.7, eff:0.76, flowSemi:12, prSemi:0.5},
+  },
+};
+
+/* ============================================================
+   Slider/input binding
+============================================================ */
 const pairs = [
   ['hp-slider', 'hp-num'],
   ['afr-slider', 'afr-num'],
@@ -406,6 +712,9 @@ const pairs = [
   ['iat-slider', 'iat-num'],
   ['amb-slider', 'amb-num'],
   ['dp-slider', 'dp-num'],
+  ['spool-slider', 'spool-num'],
+  ['ptq-slider', 'ptq-num'],
+  ['php-slider', 'php-num'],
 ];
 
 function bind(sliderId, numId) {
@@ -430,6 +739,71 @@ function bind(sliderId, numId) {
 
 pairs.forEach(([s, n]) => bind(s, n));
 
+document.getElementById('turbo-select').addEventListener('change', update);
+
+/* ============================================================
+   Fuel presets
+   - 93 pump gas: stoich 14.7, WOT target ~11.5, BSFC ~0.55-0.63
+   - E85: stoich 9.765, WOT target ~7.0, BSFC ~0.75 (35% higher than 93)
+   Note: airflow per HP is actually slightly LOWER on E85 because
+   ethanol carries its own oxygen — the AFR * BSFC product is lower.
+============================================================ */
+const fuels = {
+  '93': {
+    afrDefault: 11.5,
+    afrMin: 10.0, afrMax: 14.7,
+    afrLabelMin: '10.0 (very rich)',
+    afrLabelMax: '14.7 (stoich)',
+    bsfcDefault: 0.63,
+    bsfcMin: 0.45, bsfcMax: 0.75,
+    bsfcLabelMin: '0.45 (efficient)',
+    bsfcLabelMax: '0.75 (conservative)',
+    help: 'Stoich AFR 14.7 · Typical WOT 11.0–11.8 · BSFC typically 0.50–0.65',
+  },
+  'e85': {
+    afrDefault: 7.0,
+    afrMin: 6.0, afrMax: 9.8,
+    afrLabelMin: '6.0 (very rich)',
+    afrLabelMax: '9.8 (stoich)',
+    bsfcDefault: 0.75,
+    bsfcMin: 0.55, bsfcMax: 0.95,
+    bsfcLabelMin: '0.55 (efficient)',
+    bsfcLabelMax: '0.95 (conservative)',
+    help: 'Stoich AFR 9.765 · Typical WOT 6.5–7.5 · BSFC ~35% higher than 93 (lower energy density)',
+  },
+};
+
+function applyFuel(fuelKey) {
+  const f = fuels[fuelKey];
+  if (!f) return;
+
+  const afrSlider = document.getElementById('afr-slider');
+  const afrNum    = document.getElementById('afr-num');
+  afrSlider.min   = f.afrMin;
+  afrSlider.max   = f.afrMax;
+  afrSlider.value = f.afrDefault;
+  afrNum.value    = f.afrDefault;
+  document.getElementById('afr-label-min').textContent = f.afrLabelMin;
+  document.getElementById('afr-label-max').textContent = f.afrLabelMax;
+
+  const bsfcSlider = document.getElementById('bsfc-slider');
+  const bsfcNum    = document.getElementById('bsfc-num');
+  bsfcSlider.min   = f.bsfcMin;
+  bsfcSlider.max   = f.bsfcMax;
+  bsfcSlider.value = f.bsfcDefault;
+  bsfcNum.value    = f.bsfcDefault;
+  document.getElementById('bsfc-label-min').textContent = f.bsfcLabelMin;
+  document.getElementById('bsfc-label-max').textContent = f.bsfcLabelMax;
+
+  document.getElementById('fuel-help').textContent = f.help;
+
+  update();
+}
+
+document.getElementById('fuel-select').addEventListener('change', (e) => {
+  applyFuel(e.target.value);
+});
+
 function getNum(id, fallback) {
   const v = parseFloat(document.getElementById(id).value);
   return isNaN(v) ? fallback : v;
@@ -439,51 +813,240 @@ function fmt(n, d) {
   return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
-function update() {
-  const hp   = getNum('hp-num',   500);
-  const afr  = getNum('afr-num',  11.5);
-  const bsfc = getNum('bsfc-num', 0.63);
-  const cid  = getNum('cid-num',  150);
-  const rpm  = getNum('rpm-num',  7000);
-  const ve   = getNum('ve-num',   1.00);
-  const iat  = getNum('iat-num',  110);
-  const amb  = getNum('amb-num',  14.7);
-  const dp   = getNum('dp-num',   4.5);
+/* ============================================================
+   Engine trajectory
+   - VE held constant at input (peak) value
+   - Boost: 0 below spool, linear ramp to peakTq, flat through peakHP,
+            5%/1000 rpm linear taper above peakHP (capped at -30%)
+   - ΔP scales with airflow ratio (negligible at idle, full at peak)
+============================================================ */
+function localBoost(rpm, peakBoost, spool, peakTq, peakHP) {
+  if (rpm < spool) return 0;
+  if (rpm < peakTq) {
+    return peakBoost * (rpm - spool) / Math.max(1, peakTq - spool);
+  }
+  if (rpm <= peakHP) return peakBoost;
+  const beyond = (rpm - peakHP) / 1000;
+  return peakBoost * Math.max(0.7, 1 - 0.05 * beyond);
+}
 
-  const airflow      = (hp * afr * bsfc) / 60;
-  const tempRankine  = iat + 460;
-  const numerator    = airflow * R * tempRankine;
-  const denominator  = ve * (rpm / 2) * cid;
-  const map          = numerator / denominator;
-  const boost        = map - amb;
-  const pr           = (map + dp) / amb;
+function buildTrajectory(p) {
+  const peakAirflow = (p.hp * p.afr * p.bsfc) / 60;
+  const tempR = p.iat + 460;
+  const peakMAP = (peakAirflow * R * tempR) / (p.ve * (p.maxRPM / 2) * p.cid);
+  const peakBoost = peakMAP - p.amb;
+
+  const points = [];
+  const start = 2000;
+  for (let rpm = start; rpm <= p.maxRPM + 1; rpm += 500) {
+    const r = Math.min(rpm, p.maxRPM);
+    const boost = localBoost(r, peakBoost, p.spool, p.peakTq, p.peakHP);
+    const map = p.amb + boost;
+    const flow = (map * p.ve * (r / 2) * p.cid) / (R * tempR);
+    const dpLocal = p.dp * Math.min(1, flow / Math.max(0.1, peakAirflow));
+    const pr = (map + dpLocal) / p.amb;
+    points.push({rpm: r, flow, pr, boost, map});
+    if (r >= p.maxRPM) break;
+  }
+  return points;
+}
+
+/* ============================================================
+   SVG compressor map drawing
+============================================================ */
+const SVG_W = 800, SVG_H = 480;
+const M = { top: 28, right: 30, bottom: 50, left: 60 };
+const PLOT_W = SVG_W - M.left - M.right;
+const PLOT_H = SVG_H - M.top - M.bottom;
+const X_MAX = 100;       // lb/min
+const Y_MIN = 1.0, Y_MAX = 4.8;
+
+function xToSvg(f) { return M.left + (f / X_MAX) * PLOT_W; }
+function yToSvg(pr) { return M.top + (1 - (pr - Y_MIN) / (Y_MAX - Y_MIN)) * PLOT_H; }
+
+function statusFor(point, turbo) {
+  // Get surge flow at this PR (linear interp)
+  function interp(line, pr) {
+    if (pr <= line[0].pr) return line[0].flow;
+    if (pr >= line[line.length-1].pr) return line[line.length-1].flow;
+    for (let i = 0; i < line.length-1; i++) {
+      if (pr >= line[i].pr && pr <= line[i+1].pr) {
+        const t = (pr - line[i].pr) / (line[i+1].pr - line[i].pr);
+        return line[i].flow + t * (line[i+1].flow - line[i].flow);
+      }
+    }
+    return line[line.length-1].flow;
+  }
+  const surgeFlow = interp(turbo.surge, point.pr);
+  const chokeFlow = interp(turbo.choke, point.pr);
+  // Surge is only physically meaningful when compressor is actually making boost
+  if (point.pr > 1.3 && point.flow < surgeFlow) return 'surge';
+  if (point.flow > chokeFlow) return 'choke';
+  // Check if inside efficiency island
+  const e = turbo.peakEff;
+  const dx = (point.flow - e.flow) / e.flowSemi;
+  const dy = (point.pr - e.pr) / e.prSemi;
+  if (dx*dx + dy*dy <= 1.0) return 'in-island';
+  return 'ok';
+}
+
+function drawMap(turboKey, traj) {
+  const turbo = turboMaps[turboKey];
+  const svg = document.getElementById('compressor-map');
+  const parts = [];
+
+  // Background grid
+  for (let f = 10; f <= 90; f += 10) {
+    parts.push(`<line x1="${xToSvg(f).toFixed(1)}" y1="${M.top}" x2="${xToSvg(f).toFixed(1)}" y2="${M.top + PLOT_H}" stroke="#1a1a1a" stroke-width="1"/>`);
+  }
+  for (let pr = 1.5; pr <= 4.5; pr += 0.5) {
+    parts.push(`<line x1="${M.left}" y1="${yToSvg(pr).toFixed(1)}" x2="${M.left + PLOT_W}" y2="${yToSvg(pr).toFixed(1)}" stroke="#1a1a1a" stroke-width="1"/>`);
+  }
+
+  // Plot frame
+  parts.push(`<rect x="${M.left}" y="${M.top}" width="${PLOT_W}" height="${PLOT_H}" fill="none" stroke="#2a2a2a" stroke-width="1"/>`);
+
+  // Peak efficiency island (filled, dashed border)
+  const e = turbo.peakEff;
+  const island = [];
+  const N = 48;
+  for (let i = 0; i <= N; i++) {
+    const theta = (i / N) * 2 * Math.PI;
+    const fl = e.flow + e.flowSemi * Math.cos(theta);
+    const pr = e.pr + e.prSemi * Math.sin(theta);
+    island.push(`${xToSvg(fl).toFixed(1)},${yToSvg(pr).toFixed(1)}`);
+  }
+  parts.push(`<polygon points="${island.join(' ')}" fill="rgba(59,130,246,0.18)" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,3"/>`);
+  parts.push(`<text x="${xToSvg(e.flow).toFixed(1)}" y="${(yToSvg(e.pr) + 3).toFixed(1)}" fill="#3b82f6" font-size="11" text-anchor="middle" font-weight="600">~${Math.round(e.eff * 100)}%</text>`);
+
+  // Surge line (solid red)
+  const surgePts = turbo.surge.map(p => `${xToSvg(p.flow).toFixed(1)},${yToSvg(p.pr).toFixed(1)}`);
+  parts.push(`<polyline points="${surgePts.join(' ')}" fill="none" stroke="#ef4444" stroke-width="2"/>`);
+  const sLast = turbo.surge[turbo.surge.length - 1];
+  parts.push(`<text x="${(xToSvg(sLast.flow) - 6).toFixed(1)}" y="${(yToSvg(sLast.pr) - 6).toFixed(1)}" fill="#ef4444" font-size="10" font-weight="600" text-anchor="end">SURGE</text>`);
+
+  // Choke line (dashed red)
+  const chokePts = turbo.choke.map(p => `${xToSvg(p.flow).toFixed(1)},${yToSvg(p.pr).toFixed(1)}`);
+  parts.push(`<polyline points="${chokePts.join(' ')}" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3" opacity="0.85"/>`);
+  const cLast = turbo.choke[turbo.choke.length - 1];
+  parts.push(`<text x="${(xToSvg(cLast.flow) + 5).toFixed(1)}" y="${(yToSvg(cLast.pr) + 4).toFixed(1)}" fill="#ef4444" font-size="10" font-weight="600">CHOKE</text>`);
+
+  // Engine trajectory
+  if (traj && traj.length > 0) {
+    const trajStr = traj.map(p => `${xToSvg(Math.min(p.flow, X_MAX)).toFixed(1)},${yToSvg(Math.min(p.pr, Y_MAX)).toFixed(1)}`).join(' ');
+    parts.push(`<polyline points="${trajStr}" fill="none" stroke="#10b981" stroke-width="2" opacity="0.75"/>`);
+
+    traj.forEach(p => {
+      if (p.flow < 0 || p.flow > X_MAX + 5 || p.pr > Y_MAX) return;
+      const cx = xToSvg(Math.min(p.flow, X_MAX)).toFixed(1);
+      const cy = yToSvg(Math.min(p.pr, Y_MAX)).toFixed(1);
+      const isMajor = (p.rpm % 1000 === 0);
+      const radius = isMajor ? 4 : 3;
+      parts.push(`<circle cx="${cx}" cy="${cy}" r="${radius}" fill="#10b981" stroke="#0f0f0f" stroke-width="1.5"/>`);
+      if (isMajor) {
+        parts.push(`<text x="${(parseFloat(cx) + 8).toFixed(1)}" y="${(parseFloat(cy) + 3).toFixed(1)}" fill="#e8e8e8" font-size="10" font-weight="600">${(p.rpm / 1000).toFixed(0)}k</text>`);
+      }
+    });
+  }
+
+  // Axes - ticks + labels (drawn last so they sit on top)
+  for (let f = 0; f <= 100; f += 10) {
+    const x = xToSvg(f);
+    parts.push(`<line x1="${x.toFixed(1)}" y1="${M.top + PLOT_H}" x2="${x.toFixed(1)}" y2="${M.top + PLOT_H + 4}" stroke="#444"/>`);
+    parts.push(`<text x="${x.toFixed(1)}" y="${M.top + PLOT_H + 18}" fill="#888" font-size="10" text-anchor="middle">${f}</text>`);
+  }
+  for (let pr = 1.0; pr <= 4.5; pr += 0.5) {
+    const y = yToSvg(pr);
+    parts.push(`<line x1="${M.left}" y1="${y.toFixed(1)}" x2="${M.left - 4}" y2="${y.toFixed(1)}" stroke="#444"/>`);
+    parts.push(`<text x="${M.left - 8}" y="${(y + 3).toFixed(1)}" fill="#888" font-size="10" text-anchor="end">${pr.toFixed(1)}</text>`);
+  }
+
+  parts.push(`<text x="${(M.left + PLOT_W / 2).toFixed(1)}" y="${SVG_H - 8}" fill="#aaa" font-size="11" text-anchor="middle">Compressor Mass Flow (lb/min)</text>`);
+  parts.push(`<text x="14" y="${(M.top + PLOT_H / 2).toFixed(1)}" fill="#aaa" font-size="11" text-anchor="middle" transform="rotate(-90 14 ${(M.top + PLOT_H / 2).toFixed(1)})">Pressure Ratio</text>`);
+
+  svg.innerHTML = parts.join('\n');
+}
+
+/* ============================================================
+   Trajectory table
+============================================================ */
+function drawTable(traj, turbo) {
+  const peak = traj.reduce((acc, p) => p.flow > acc.flow ? p : acc, traj[0]);
+  const rows = traj.map(p => {
+    const status = statusFor(p, turbo);
+    let cls = '';
+    let label = '';
+    if (p.rpm === peak.rpm) { cls = 'peak'; label = 'peak airflow'; }
+    if (status === 'surge') { cls = 'over-surge'; label = (label ? label + ', ' : '') + 'left of surge'; }
+    else if (status === 'choke') { cls = 'over-choke'; label = (label ? label + ', ' : '') + 'past choke'; }
+    else if (status === 'in-island' && cls !== 'peak') { label = label || 'in efficiency island'; }
+    else if (!label) { label = ''; }
+    return `<tr class="${cls}">
+      <td>${p.rpm.toLocaleString()}</td>
+      <td>${fmt(p.flow, 1)}</td>
+      <td>${fmt(p.pr, 2)}</td>
+      <td>${fmt(p.boost, 1)}</td>
+      <td>${label}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('traj-tbody').innerHTML = rows;
+}
+
+/* ============================================================
+   Main update
+============================================================ */
+function update() {
+  const p = {
+    hp:     getNum('hp-num',   500),
+    afr:    getNum('afr-num',  11.5),
+    bsfc:   getNum('bsfc-num', 0.63),
+    cid:    getNum('cid-num',  150),
+    maxRPM: getNum('rpm-num',  7000),
+    ve:     getNum('ve-num',   1.00),
+    iat:    getNum('iat-num',  110),
+    amb:    getNum('amb-num',  14.7),
+    dp:     getNum('dp-num',   4.5),
+    spool:  getNum('spool-num', 3500),
+    peakTq: getNum('ptq-num',   4500),
+    peakHP: getNum('php-num',   6500),
+  };
+
+  // Peak conditions (matches existing calculation)
+  const airflow = (p.hp * p.afr * p.bsfc) / 60;
+  const tempR = p.iat + 460;
+  const numerator = airflow * R * tempR;
+  const denominator = p.ve * (p.maxRPM / 2) * p.cid;
+  const map = numerator / denominator;
+  const boost = map - p.amb;
+  const pr = (map + p.dp) / p.amb;
 
   document.getElementById('airflow-display').textContent = fmt(airflow, 1) + ' lb/min';
   document.getElementById('map-display').textContent     = fmt(map, 1) + ' psia';
   document.getElementById('boost-display').textContent   = fmt(boost, 1) + ' psi boost';
   document.getElementById('pr-display').textContent      = fmt(pr, 2);
-  document.getElementById('hp-display').textContent      = fmt(hp, 0) + ' hp';
+  document.getElementById('hp-display').textContent      = fmt(p.hp, 0) + ' hp';
 
+  // Calculation steps
   const steps = [
     {
       label: '1. Required Airflow',
       formula: '(HP × AFR × BSFC) / 60',
-      result: `(${fmt(hp,0)} × ${fmt(afr,2)} × ${fmt(bsfc,2)}) / 60 = <strong>${fmt(airflow,2)} lb/min</strong>`
+      result: `(${fmt(p.hp,0)} × ${fmt(p.afr,2)} × ${fmt(p.bsfc,2)}) / 60 = <strong>${fmt(airflow,2)} lb/min</strong>`
     },
     {
       label: '2. Manifold Pressure (absolute)',
       formula: '(Airflow × 639.6 × (IAT + 460)) / (VE × RPM/2 × CID)',
-      result: `(${fmt(airflow,2)} × 639.6 × ${fmt(tempRankine,0)}) / (${fmt(ve,2)} × ${fmt(rpm/2,0)} × ${fmt(cid,2)}) = ${fmt(numerator,0)} / ${fmt(denominator,0)} = <strong>${fmt(map,2)} psia</strong>`
+      result: `(${fmt(airflow,2)} × 639.6 × ${fmt(tempR,0)}) / (${fmt(p.ve,2)} × ${fmt(p.maxRPM/2,0)} × ${fmt(p.cid,2)}) = ${fmt(numerator,0)} / ${fmt(denominator,0)} = <strong>${fmt(map,2)} psia</strong>`
     },
     {
       label: '3. Boost Pressure (gauge)',
       formula: 'MAP − Ambient',
-      result: `${fmt(map,2)} − ${fmt(amb,1)} = <strong>${fmt(boost,2)} psi</strong>`
+      result: `${fmt(map,2)} − ${fmt(p.amb,1)} = <strong>${fmt(boost,2)} psi</strong>`
     },
     {
       label: '4. Pressure Ratio',
       formula: '(MAP + ΔP) / Ambient',
-      result: `(${fmt(map,2)} + ${fmt(dp,1)}) / ${fmt(amb,1)} = <strong>${fmt(pr,3)}</strong>`
+      result: `(${fmt(map,2)} + ${fmt(p.dp,1)}) / ${fmt(p.amb,1)} = <strong>${fmt(pr,3)}</strong>`
     },
   ];
 
@@ -494,6 +1057,21 @@ function update() {
       <div class="step-result">${s.result}</div>
     </div>
   `).join('');
+
+  // Map + trajectory
+  const turboKey = document.getElementById('turbo-select').value;
+  const turbo = turboMaps[turboKey];
+  const traj = buildTrajectory(p);
+
+  // Turbo meta
+  document.getElementById('turbo-meta').innerHTML = `
+    <span><strong>${turbo.name}</strong></span>
+    <span>${turbo.specs}</span>
+    <span>${turbo.hpRange}</span>
+  `;
+
+  drawMap(turboKey, traj);
+  drawTable(traj, turbo);
 }
 
 update();
