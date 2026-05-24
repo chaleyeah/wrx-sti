@@ -530,16 +530,23 @@ input[type="range"]::-moz-range-thumb {
 
   <div class="map-toolbar">
     <select id="turbo-select" class="turbo-select">
-      <optgroup label="Garrett G-Series">
+      <optgroup label="Garrett G-Series (Gen I)">
         <option value="g25-660">Garrett G25-660</option>
         <option value="g30-660" selected>Garrett G30-660</option>
         <option value="g30-770">Garrett G30-770</option>
         <option value="g35-900">Garrett G35-900</option>
       </optgroup>
+      <optgroup label="Garrett G-Series II (Gen II)">
+        <option value="g25-700">Garrett G25-700</option>
+        <option value="g30-700">Garrett G30-700</option>
+        <option value="g30-825">Garrett G30-825</option>
+        <option value="g35-990">Garrett G35-990</option>
+      </optgroup>
       <optgroup label="BorgWarner EFR">
         <option value="efr-7163">BorgWarner EFR 7163</option>
         <option value="efr-7670">BorgWarner EFR 7670</option>
         <option value="efr-8374">BorgWarner EFR 8374</option>
+        <option value="efr-9180">BorgWarner EFR 9180</option>
       </optgroup>
       <optgroup label="Turbosmart TS-2">
         <option value="ts2-5862">Turbosmart TS-2 5862</option>
@@ -558,7 +565,7 @@ input[type="range"]::-moz-range-thumb {
   <div class="map-legend">
     <span class="legend-item"><span class="legend-line solid-red"></span>Surge line</span>
     <span class="legend-item"><span class="legend-line dash-red"></span>Choke line</span>
-    <span class="legend-item"><span class="legend-island"></span>Peak efficiency</span>
+    <span class="legend-item"><span class="legend-island"></span>Efficiency islands (peak filled)</span>
     <span class="legend-item"><span class="legend-line solid-green"></span>Engine trajectory</span>
     <span class="legend-item"><span class="legend-dot"></span>500-rpm step</span>
   </div>
@@ -598,7 +605,7 @@ input[type="range"]::-moz-range-thumb {
     <strong>Compressor maps</strong> shown here are approximations derived from each manufacturer's published specifications (max flow, max PR, peak efficiency location, geometry). They're useful for relative comparison and to see roughly where the engine sits — but for authoritative numbers always cross-reference Garrett's, BorgWarner's, or Turbosmart's official map PDFs. Trajectory points (green) are computed directly from your inputs.
   </div>
   <div class="note-text">
-    <strong>Reading the map</strong> — Operating points should fall inside or near the efficiency island during peak power. Points LEFT of the surge line risk compressor surge. Points RIGHT of the choke line mean you've exceeded the compressor's flow capacity (turbo too small for your power target).
+    <strong>Reading the map</strong> — Operating points should ideally fall inside the filled peak efficiency island during peak power. Points in the outer rings (3%, 6%, 9% below peak) are still usable but compressor efficiency drops — you'll see slightly higher discharge air temps and slightly less power per unit boost. Points LEFT of the surge line risk compressor surge; points RIGHT of the choke line mean you've exceeded the compressor's flow capacity (turbo too small for your power target).
   </div>
   <div class="note-text">
     <strong>Formulas:</strong> Airflow = (HP × AFR × BSFC) / 60 · MAP = (Airflow × R × (IAT + 460)) / (VE × RPM/2 × CID), R = 639.6 · Boost = MAP − Ambient · PR = (MAP + ΔP) / Ambient
@@ -649,6 +656,38 @@ const turboMaps = {
     choke: [{pr:1.3,flow:95},{pr:2.0,flow:94},{pr:2.5,flow:92},{pr:3.0,flow:88},{pr:3.5,flow:83},{pr:4.2,flow:75}],
     peakEff: {flow:58, pr:2.7, eff:0.78, flowSemi:14, prSemi:0.6},
   },
+  'g25-700': {
+    name: 'Garrett G25-700 (Gen II)',
+    specs: '54 mm inducer · ball bearing · 160k rpm max · Gen II aero',
+    hpRange: '350 – 700 hp',
+    surge: [{pr:1.3,flow:5},{pr:2.0,flow:11},{pr:2.5,flow:15},{pr:3.0,flow:21},{pr:3.5,flow:27},{pr:4.0,flow:33}],
+    choke: [{pr:1.3,flow:67},{pr:2.0,flow:66},{pr:2.5,flow:64},{pr:3.0,flow:62},{pr:3.5,flow:58},{pr:4.0,flow:53}],
+    peakEff: {flow:41, pr:2.5, eff:0.78, flowSemi:10, prSemi:0.5},
+  },
+  'g30-700': {
+    name: 'Garrett G30-700 (Gen II)',
+    specs: '54 / 67 mm compressor · Gen II aero · ball bearing · 165k rpm max',
+    hpRange: '400 – 700 hp',
+    surge: [{pr:1.3,flow:5},{pr:2.0,flow:10},{pr:2.5,flow:15},{pr:3.0,flow:21},{pr:3.5,flow:27},{pr:4.0,flow:33}],
+    choke: [{pr:1.3,flow:86},{pr:2.0,flow:85},{pr:2.5,flow:83},{pr:3.0,flow:79},{pr:3.5,flow:75},{pr:4.0,flow:69}],
+    peakEff: {flow:48, pr:2.5, eff:0.78, flowSemi:11, prSemi:0.5},
+  },
+  'g30-825': {
+    name: 'Garrett G30-825 (Gen II)',
+    specs: '58 / 71 mm compressor · Gen II aero · ball bearing · 165k rpm max',
+    hpRange: '450 – 825 hp',
+    surge: [{pr:1.3,flow:6},{pr:2.0,flow:12},{pr:2.5,flow:18},{pr:3.0,flow:24},{pr:3.5,flow:31},{pr:4.0,flow:38}],
+    choke: [{pr:1.3,flow:95},{pr:2.0,flow:94},{pr:2.5,flow:92},{pr:3.0,flow:88},{pr:3.5,flow:84},{pr:4.0,flow:78}],
+    peakEff: {flow:55, pr:2.6, eff:0.79, flowSemi:12, prSemi:0.55},
+  },
+  'g35-990': {
+    name: 'Garrett G35-990 (Gen II)',
+    specs: '62 / 76 mm compressor · Gen II aero · ball bearing · 152k rpm max',
+    hpRange: '550 – 990 hp',
+    surge: [{pr:1.3,flow:8},{pr:2.0,flow:16},{pr:2.5,flow:22},{pr:3.0,flow:30},{pr:3.5,flow:38},{pr:4.2,flow:49}],
+    choke: [{pr:1.3,flow:105},{pr:2.0,flow:104},{pr:2.5,flow:102},{pr:3.0,flow:97},{pr:3.5,flow:91},{pr:4.2,flow:82}],
+    peakEff: {flow:63, pr:2.7, eff:0.79, flowSemi:14, prSemi:0.6},
+  },
   'efr-7163': {
     name: 'BorgWarner EFR 7163',
     specs: '57 / 71 mm compressor · ball bearing · ~129k rpm max',
@@ -672,6 +711,14 @@ const turboMaps = {
     surge: [{pr:1.3,flow:5},{pr:2.0,flow:11},{pr:2.5,flow:16},{pr:3.0,flow:22},{pr:3.5,flow:28},{pr:4.2,flow:38}],
     choke: [{pr:1.3,flow:79},{pr:2.0,flow:78},{pr:2.5,flow:76},{pr:3.0,flow:73},{pr:3.5,flow:69},{pr:4.2,flow:63}],
     peakEff: {flow:48, pr:2.6, eff:0.80, flowSemi:12, prSemi:0.55},
+  },
+  'efr-9180': {
+    name: 'BorgWarner EFR 9180',
+    specs: '68 / 91 mm compressor · ball bearing · ~105k rpm max · 80 mm turbine',
+    hpRange: '600 – 1000 hp',
+    surge: [{pr:1.3,flow:6},{pr:2.0,flow:13},{pr:2.5,flow:19},{pr:3.0,flow:26},{pr:3.5,flow:33},{pr:4.2,flow:43}],
+    choke: [{pr:1.3,flow:100},{pr:2.0,flow:99},{pr:2.5,flow:96},{pr:3.0,flow:92},{pr:3.5,flow:87},{pr:4.2,flow:78}],
+    peakEff: {flow:60, pr:2.6, eff:0.80, flowSemi:13, prSemi:0.6},
   },
   'ts2-5862': {
     name: 'Turbosmart TS-2 5862',
@@ -858,7 +905,7 @@ const SVG_W = 800, SVG_H = 480;
 const M = { top: 28, right: 30, bottom: 50, left: 60 };
 const PLOT_W = SVG_W - M.left - M.right;
 const PLOT_H = SVG_H - M.top - M.bottom;
-const X_MAX = 100;       // lb/min
+const X_MAX = 110;       // lb/min
 const Y_MIN = 1.0, Y_MAX = 4.8;
 
 function xToSvg(f) { return M.left + (f / X_MAX) * PLOT_W; }
@@ -896,7 +943,7 @@ function drawMap(turboKey, traj) {
   const parts = [];
 
   // Background grid
-  for (let f = 10; f <= 90; f += 10) {
+  for (let f = 10; f <= 100; f += 10) {
     parts.push(`<line x1="${xToSvg(f).toFixed(1)}" y1="${M.top}" x2="${xToSvg(f).toFixed(1)}" y2="${M.top + PLOT_H}" stroke="#1a1a1a" stroke-width="1"/>`);
   }
   for (let pr = 1.5; pr <= 4.5; pr += 0.5) {
@@ -906,18 +953,36 @@ function drawMap(turboKey, traj) {
   // Plot frame
   parts.push(`<rect x="${M.left}" y="${M.top}" width="${PLOT_W}" height="${PLOT_H}" fill="none" stroke="#2a2a2a" stroke-width="1"/>`);
 
-  // Peak efficiency island (filled, dashed border)
+  // Efficiency islands - peak plus 3 outer contours at 3% intervals
+  // Drawn outermost first so peak (with fill) sits on top
   const e = turbo.peakEff;
-  const island = [];
-  const N = 48;
-  for (let i = 0; i <= N; i++) {
-    const theta = (i / N) * 2 * Math.PI;
-    const fl = e.flow + e.flowSemi * Math.cos(theta);
-    const pr = e.pr + e.prSemi * Math.sin(theta);
-    island.push(`${xToSvg(fl).toFixed(1)},${yToSvg(pr).toFixed(1)}`);
-  }
-  parts.push(`<polygon points="${island.join(' ')}" fill="rgba(59,130,246,0.18)" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,3"/>`);
-  parts.push(`<text x="${xToSvg(e.flow).toFixed(1)}" y="${(yToSvg(e.pr) + 3).toFixed(1)}" fill="#3b82f6" font-size="11" text-anchor="middle" font-weight="600">~${Math.round(e.eff * 100)}%</text>`);
+  const peakEffPct = Math.round(e.eff * 100);
+  const islandLevels = [
+    { scale: 2.0, effPct: peakEffPct - 9, fill: 'none',                  stroke: 'rgba(59,130,246,0.35)' },
+    { scale: 1.6, effPct: peakEffPct - 6, fill: 'none',                  stroke: 'rgba(59,130,246,0.55)' },
+    { scale: 1.3, effPct: peakEffPct - 3, fill: 'none',                  stroke: 'rgba(59,130,246,0.75)' },
+    { scale: 1.0, effPct: peakEffPct,     fill: 'rgba(59,130,246,0.18)', stroke: '#3b82f6'               },
+  ];
+  islandLevels.forEach(level => {
+    const pts = [];
+    const N = 48;
+    for (let i = 0; i <= N; i++) {
+      const theta = (i / N) * 2 * Math.PI;
+      const fl = e.flow + e.flowSemi * level.scale * Math.cos(theta);
+      const pr = e.pr + e.prSemi * level.scale * Math.sin(theta);
+      pts.push(`${xToSvg(fl).toFixed(1)},${yToSvg(pr).toFixed(1)}`);
+    }
+    parts.push(`<polygon points="${pts.join(' ')}" fill="${level.fill}" stroke="${level.stroke}" stroke-width="1" stroke-dasharray="3,3"/>`);
+
+    // Labels: peak in center (bold), outer rings at top of each ring (faded)
+    if (level.scale === 1.0) {
+      parts.push(`<text x="${xToSvg(e.flow).toFixed(1)}" y="${(yToSvg(e.pr) + 3).toFixed(1)}" fill="#3b82f6" font-size="11" text-anchor="middle" font-weight="600">~${level.effPct}%</text>`);
+    } else {
+      const labelX = xToSvg(e.flow).toFixed(1);
+      const labelY = (yToSvg(e.pr + e.prSemi * level.scale) - 3).toFixed(1);
+      parts.push(`<text x="${labelX}" y="${labelY}" fill="${level.stroke}" font-size="9" text-anchor="middle">${level.effPct}%</text>`);
+    }
+  });
 
   // Surge line (solid red)
   const surgePts = turbo.surge.map(p => `${xToSvg(p.flow).toFixed(1)},${yToSvg(p.pr).toFixed(1)}`);
@@ -950,7 +1015,7 @@ function drawMap(turboKey, traj) {
   }
 
   // Axes - ticks + labels (drawn last so they sit on top)
-  for (let f = 0; f <= 100; f += 10) {
+  for (let f = 0; f <= 110; f += 10) {
     const x = xToSvg(f);
     parts.push(`<line x1="${x.toFixed(1)}" y1="${M.top + PLOT_H}" x2="${x.toFixed(1)}" y2="${M.top + PLOT_H + 4}" stroke="#444"/>`);
     parts.push(`<text x="${x.toFixed(1)}" y="${M.top + PLOT_H + 18}" fill="#888" font-size="10" text-anchor="middle">${f}</text>`);

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spring Rate &amp; Motion Ratio Calculator — 566 STI</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f0f0f;
+  color: #e8e8e8;
+  padding: 1.5rem;
+  min-height: 100vh;
+}
+.wrap { max-width: 960px; margin: 0 auto; }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.25rem;
+}
+.brand { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand a { color: inherit; text-decoration: none; }
+.brand .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  margin-right: 8px;
+  transform: translateY(-2px);
+}
+.crumb { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+.crumb a { color: #666; text-decoration: none; }
+.crumb a:hover { color: #aaa; }
+.crumb .sep { margin: 0 6px; color: #555; }
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 520px) {
+  .cards { grid-template-columns: repeat(4, 1fr); }
+}
+.card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px;
+}
+.card-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+}
+.card-sub {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+.card.highlight .card-value { color: #3b82f6; }
+.card.highlight2 .card-value { color: #10b981; }
+.card.highlight3 .card-value { color: #f59e0b; }
+
+.controls, .steps {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.section-title:not(:first-child) {
+  margin-top: 1.75rem;
+}
+.control-row { margin-bottom: 1.25rem; }
+.control-row:last-child { margin-bottom: 0; }
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+.control-header label {
+  font-size: 13px;
+  color: #aaa;
+  flex: 1;
+  min-width: 0;
+}
+.num-input {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 8px;
+  width: 90px;
+  text-align: right;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  flex-shrink: 0;
+}
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.num-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+}
+.slider-green::-webkit-slider-thumb { background: #10b981; }
+.slider-green::-moz-range-thumb { background: #10b981; }
+.slider-amber::-webkit-slider-thumb { background: #f59e0b; }
+.slider-amber::-moz-range-thumb { background: #f59e0b; }
+
+.control-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+.control-range-labels span { font-size: 11px; color: #555; }
+
+.unit-select {
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+}
+.unit-select:focus { outline: none; border-color: #3b82f6; }
+.field-help {
+  font-size: 11px;
+  color: #555;
+  margin-top: 6px;
+}
+
+/* Geometry helper */
+.helper {
+  background: #161616;
+  border: 1px dashed #333;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+.helper-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.helper-title { font-size: 12px; font-weight: 600; color: #bbb; }
+.helper-mr {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #f59e0b;
+}
+.apply-btn {
+  background: #222;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #ddd;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.apply-btn:hover { border-color: #f59e0b; color: #fff; }
+
+/* Steps */
+.steps-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 12px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+@media (min-width: 640px) {
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.step { background: #222; border-radius: 8px; padding: 10px 12px; }
+.step-label { font-size: 12px; font-weight: 600; color: #ddd; margin-bottom: 4px; }
+.step-formula {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.step-result {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #666;
+  word-break: break-word;
+}
+.step-result strong { color: #ccc; font-weight: 600; }
+
+/* Notes */
+.note { border-left: 2px solid #333; padding-left: 12px; }
+.note-title {
+  font-size: 11px; font-weight: 600; color: #888;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.note-text { font-size: 12px; color: #666; line-height: 1.55; margin-bottom: 8px; }
+.note-text:last-child { margin-bottom: 0; }
+.note-text strong { color: #999; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand"><a href="index.html"><span class="dot"></span>566 / STI GARAGE</a></div>
+  <div class="crumb"><a href="index.html">Home</a><span class="sep">/</span>Spring Rate Calculator</div>
+</div>
+
+<h1>VA WRX STI Spring Rate &amp; Motion Ratio Calculator</h1>
+
+<div class="cards">
+  <div class="card highlight">
+    <div class="card-label">Front Wheel Rate</div>
+    <div class="card-value" id="fwr-display">—</div>
+    <div class="card-sub" id="fwr-sub">—</div>
+  </div>
+  <div class="card highlight2">
+    <div class="card-label">Rear Wheel Rate</div>
+    <div class="card-value" id="rwr-display">—</div>
+    <div class="card-sub" id="rwr-sub">—</div>
+  </div>
+  <div class="card highlight3">
+    <div class="card-label">Front Ride Freq</div>
+    <div class="card-value" id="ffreq-display">— Hz</div>
+    <div class="card-sub">sprung, per corner</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Rear Ride Freq</div>
+    <div class="card-value" id="rfreq-display">— Hz</div>
+    <div class="card-sub" id="balance-sub">—</div>
+  </div>
+</div>
+
+<div class="controls">
+
+<div class="section-title">Spring Rates</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Spring rate units</label>
+  </div>
+  <select id="unit-select" class="unit-select">
+    <option value="nmm" selected>N/mm (Öhlins, metric)</option>
+    <option value="kgfmm">kgf/mm (JDM)</option>
+    <option value="lbfin">lbf/in (US)</option>
+  </select>
+  <div class="field-help" id="unit-help">Öhlins R&amp;T and most metric coilovers are speced in N/mm. 1 kgf/mm = 9.807 N/mm · 1 lbf/in = 0.1751 N/mm.</div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Front spring rate (<span class="unit-tag">N/mm</span>)</label>
+    <input type="number" class="num-input" id="fsr-num" value="80" step="1" min="1">
+  </div>
+  <input type="range" min="20" max="180" step="1" value="80" id="fsr-slider">
+  <div class="control-range-labels">
+    <span id="fsr-label-min">20</span>
+    <span id="fsr-label-max">180</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Rear spring rate (<span class="unit-tag">N/mm</span>)</label>
+    <input type="number" class="num-input" id="rsr-num" value="60" step="1" min="1">
+  </div>
+  <input type="range" min="20" max="180" step="1" value="60" id="rsr-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span id="rsr-label-min">20</span>
+    <span id="rsr-label-max">180</span>
+  </div>
+</div>
+
+<div class="section-title">Motion Ratios</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Front motion ratio (spring travel / wheel travel)</label>
+    <input type="number" class="num-input" id="fmr-num" value="0.95" step="0.01" min="0.3" max="1.2">
+  </div>
+  <input type="range" min="0.5" max="1.1" step="0.01" value="0.95" id="fmr-slider" class="slider-amber">
+  <div class="control-range-labels">
+    <span>0.50</span>
+    <span>1.10</span>
+  </div>
+
+  <div class="helper">
+    <div class="helper-head">
+      <div class="helper-title">Geometry helper — front</div>
+      <button class="apply-btn" id="fmr-apply">Apply → MR</button>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Pivot → spring mount (Ls)</label>
+        <input type="number" class="num-input" id="fls-num" value="1.00" step="0.01" min="0.1">
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Pivot → wheel center (Lw)</label>
+        <input type="number" class="num-input" id="flw-num" value="1.00" step="0.01" min="0.1">
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Spring/strut angle from vertical (°)</label>
+        <input type="number" class="num-input" id="fang-num" value="18" step="0.5" min="0" max="60">
+      </div>
+    </div>
+    <div class="helper-mr">computed MR = <span id="fmr-calc">—</span></div>
+    <div class="field-help">MR ≈ (Ls / Lw) × cos(angle). Front strut is near-coaxial, so Ls ≈ Lw and MR ≈ cos(angle).</div>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Rear motion ratio (spring travel / wheel travel)</label>
+    <input type="number" class="num-input" id="rmr-num" value="0.72" step="0.01" min="0.3" max="1.2">
+  </div>
+  <input type="range" min="0.5" max="1.1" step="0.01" value="0.72" id="rmr-slider" class="slider-amber">
+  <div class="control-range-labels">
+    <span>0.50</span>
+    <span>1.10</span>
+  </div>
+
+  <div class="helper">
+    <div class="helper-head">
+      <div class="helper-title">Geometry helper — rear</div>
+      <button class="apply-btn" id="rmr-apply">Apply → MR</button>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Pivot → spring mount (Ls)</label>
+        <input type="number" class="num-input" id="rls-num" value="0.75" step="0.01" min="0.1">
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Pivot → wheel center (Lw)</label>
+        <input type="number" class="num-input" id="rlw-num" value="1.00" step="0.01" min="0.1">
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-header">
+        <label>Spring angle from vertical (°)</label>
+        <input type="number" class="num-input" id="rang-num" value="10" step="0.5" min="0" max="60">
+      </div>
+    </div>
+    <div class="helper-mr">computed MR = <span id="rmr-calc">—</span></div>
+    <div class="field-help">Rear is double-wishbone with the spring mounted inboard, so Ls &lt; Lw and MR is lower than the front.</div>
+  </div>
+</div>
+
+<div class="section-title">Vehicle Mass (for ride frequency)</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Total vehicle weight incl. driver (lb)</label>
+    <input type="number" class="num-input" id="weight-num" value="3550" step="10" min="2000" max="5000">
+  </div>
+  <input type="range" min="3000" max="4200" step="10" value="3550" id="weight-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>3,000 lb</span>
+    <span>4,200 lb</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Front weight distribution (%)</label>
+    <input type="number" class="num-input" id="dist-num" value="59" step="0.5" min="40" max="70">
+  </div>
+  <input type="range" min="50" max="65" step="0.5" value="59" id="dist-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>50% (even)</span>
+    <span>65% (nose heavy)</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Front unsprung mass per corner (lb)</label>
+    <input type="number" class="num-input" id="funs-num" value="45" step="1" min="20" max="90">
+  </div>
+  <input type="range" min="25" max="75" step="1" value="45" id="funs-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>25 lb</span>
+    <span>75 lb</span>
+  </div>
+</div>
+
+<div class="control-row">
+  <div class="control-header">
+    <label>Rear unsprung mass per corner (lb)</label>
+    <input type="number" class="num-input" id="runs-num" value="40" step="1" min="20" max="90">
+  </div>
+  <input type="range" min="25" max="75" step="1" value="40" id="runs-slider" class="slider-green">
+  <div class="control-range-labels">
+    <span>25 lb</span>
+    <span>75 lb</span>
+  </div>
+</div>
+
+</div><!-- /.controls -->
+
+<div class="steps">
+  <div class="steps-title">Calculation Steps</div>
+  <div class="steps-grid" id="steps-grid"></div>
+</div>
+
+<div class="note">
+  <div class="note-title">Notes</div>
+  <div class="note-text">
+    <strong>Wheel rate</strong> = spring rate × MR². Motion ratio here is defined as <em>spring travel ÷ wheel travel</em> (a number &lt; 1 because the spring is inboard of the contact patch and moves less than the wheel). Because it's squared, a 0.90 MR drops effective rate to 81% of the spring's nominal rate — the single biggest reason a stiff-looking spring feels softer at the tire.
+  </div>
+  <div class="note-text">
+    <strong>Motion ratio defaults are estimates.</strong> Front ≈ 0.95 (near-coaxial strut, mostly the strut-angle cosine) and rear ≈ 0.72 (double-wishbone with the spring mounted inboard) are reasonable starting points for the 2015–2021 VA chassis, but they are <em>not</em> measured factory figures. For real tuning, measure your own: jack the wheel through its travel and compare spring compression to wheel movement, or use the geometry helper with arm/mount distances from your car.
+  </div>
+  <div class="note-text">
+    <strong>Ride frequency</strong> = (1 / 2π) × √(wheel rate / sprung corner mass). This is what suspension tuners actually target. Rough guideline: 1.0–1.5 Hz street comfort, 1.5–2.0 Hz sport/street, 2.0–2.5 Hz autocross/track, 2.5 Hz+ aero/slick race cars. A balanced setup usually runs the rear ~0.1–0.3 Hz <em>higher</em> than the front so the rear settles first and the car feels planted (flat ride).
+  </div>
+  <div class="note-text">
+    <strong>Sprung corner mass</strong> = (total weight × distribution ÷ 2) − unsprung corner mass. Default 3,550 lb assumes ~3,400 lb curb plus driver; 59% front is typical for the EJ-powered STI's nose-heavy layout. Adjust to your corner-balanced scale numbers for accuracy.
+  </div>
+  <div class="note-text">
+    <strong>This ignores</strong> the anti-roll bars (which add roll-only wheel rate), tire spring rate (in series with the suspension, lowers effective rate slightly at high frequency), and any rising/falling-rate geometry through travel. It's a static, single-corner estimate for comparing spring choices — not a full kinematics model.
+  </div>
+  <div class="note-text">
+    <strong>Formulas:</strong> Wheel rate = k<sub>spring</sub> × MR² · Ride freq = (1/2π)√(k<sub>wheel</sub> / m<sub>sprung,corner</sub>) · MR<sub>geom</sub> = (Ls/Lw)·cos(angle) · 1 N/mm = 5.710 lbf/in = 0.10197 kgf/mm
+  </div>
+</div>
+
+<script>
+/* Unit conversions — canonical store is N/mm */
+const UNIT = {
+  nmm:   { label: 'N/mm',   toNmm: 1,           fromNmm: 1,          dec: 1, min: 20,  max: 180, step: 1 },
+  kgfmm: { label: 'kgf/mm', toNmm: 9.80665,     fromNmm: 1/9.80665,  dec: 2, min: 2,   max: 18,  step: 0.1 },
+  lbfin: { label: 'lbf/in', toNmm: 0.175126835, fromNmm: 5.71014716, dec: 0, min: 100, max: 1000, step: 5 },
+};
+
+let currentUnit = 'nmm';
+
+const pairs = [
+  ['fsr-slider', 'fsr-num'],
+  ['rsr-slider', 'rsr-num'],
+  ['fmr-slider', 'fmr-num'],
+  ['rmr-slider', 'rmr-num'],
+  ['weight-slider', 'weight-num'],
+  ['dist-slider', 'dist-num'],
+  ['funs-slider', 'funs-num'],
+  ['runs-slider', 'runs-num'],
+];
+
+function bind(sliderId, numId) {
+  const slider = document.getElementById(sliderId);
+  const num = document.getElementById(numId);
+  slider.addEventListener('input', () => { num.value = slider.value; update(); });
+  num.addEventListener('input', () => {
+    const v = parseFloat(num.value);
+    if (!isNaN(v)) {
+      const sMin = parseFloat(slider.min), sMax = parseFloat(slider.max);
+      slider.value = Math.max(sMin, Math.min(sMax, v));
+      update();
+    }
+  });
+}
+pairs.forEach(([s, n]) => bind(s, n));
+
+function getNum(id, fallback) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? fallback : v;
+}
+function fmt(n, d) {
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+/* Unit toggle — convert displayed spring rates, retarget sliders */
+function applyUnit(newUnit) {
+  const prev = UNIT[currentUnit];
+  const next = UNIT[newUnit];
+
+  ['fsr', 'rsr'].forEach(id => {
+    const num = document.getElementById(id + '-num');
+    const slider = document.getElementById(id + '-slider');
+    const nmmVal = parseFloat(num.value) * prev.toNmm;        // current -> N/mm
+    const newVal = nmmVal * next.fromNmm;                      // N/mm -> new unit
+    num.step = next.step;
+    slider.min = next.min; slider.max = next.max; slider.step = next.step;
+    num.value = newVal.toFixed(next.dec);
+    slider.value = Math.max(next.min, Math.min(next.max, newVal));
+    document.getElementById(id + '-label-min').textContent = next.min;
+    document.getElementById(id + '-label-max').textContent = next.max;
+  });
+
+  document.querySelectorAll('.unit-tag').forEach(el => el.textContent = next.label);
+  currentUnit = newUnit;
+  update();
+}
+document.getElementById('unit-select').addEventListener('change', e => applyUnit(e.target.value));
+
+/* Geometry helper */
+function computeGeomMR(axle) {
+  const ls  = getNum(axle + 'ls-num', 1);
+  const lw  = getNum(axle + 'lw-num', 1);
+  const ang = getNum(axle + 'ang-num', 0);
+  const mr = (ls / Math.max(0.0001, lw)) * Math.cos(ang * Math.PI / 180);
+  return mr;
+}
+function refreshGeom() {
+  ['f', 'r'].forEach(axle => {
+    document.getElementById(axle + 'mr-calc').textContent = computeGeomMR(axle).toFixed(3);
+  });
+}
+['fls-num','flw-num','fang-num','rls-num','rlw-num','rang-num'].forEach(id => {
+  document.getElementById(id).addEventListener('input', refreshGeom);
+});
+function applyGeom(axle) {
+  const mr = computeGeomMR(axle);
+  const num = document.getElementById(axle + 'mr-num');
+  const slider = document.getElementById(axle + 'mr-slider');
+  num.value = mr.toFixed(2);
+  slider.value = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), mr));
+  update();
+}
+document.getElementById('fmr-apply').addEventListener('click', () => applyGeom('f'));
+document.getElementById('rmr-apply').addEventListener('click', () => applyGeom('r'));
+
+/* Ride frequency: f = (1/2pi) sqrt(k/m), k in N/m, m in kg */
+const LB_TO_KG = 0.45359237;
+function rideFreq(wheelRateNmm, sprungCornerLb) {
+  const k = wheelRateNmm * 1000;            // N/mm -> N/m
+  const m = sprungCornerLb * LB_TO_KG;       // lb -> kg
+  if (m <= 0 || k <= 0) return 0;
+  return (1 / (2 * Math.PI)) * Math.sqrt(k / m);
+}
+
+function update() {
+  refreshGeom();
+  const u = UNIT[currentUnit];
+
+  const fsrDisp = getNum('fsr-num', 0);
+  const rsrDisp = getNum('rsr-num', 0);
+  const fsrNmm = fsrDisp * u.toNmm;
+  const rsrNmm = rsrDisp * u.toNmm;
+
+  const fmr = getNum('fmr-num', 0.95);
+  const rmr = getNum('rmr-num', 0.72);
+
+  const fwrNmm = fsrNmm * fmr * fmr;
+  const rwrNmm = rsrNmm * rmr * rmr;
+
+  const fwrDisp = fwrNmm * u.fromNmm;
+  const rwrDisp = rwrNmm * u.fromNmm;
+  const fwrLbf = fwrNmm * UNIT.lbfin.fromNmm;
+  const rwrLbf = rwrNmm * UNIT.lbfin.fromNmm;
+
+  /* mass */
+  const weight = getNum('weight-num', 3550);
+  const dist   = getNum('dist-num', 59) / 100;
+  const funs   = getNum('funs-num', 45);
+  const runs   = getNum('runs-num', 40);
+  const fCorner = weight * dist / 2;
+  const rCorner = weight * (1 - dist) / 2;
+  const fSprung = Math.max(1, fCorner - funs);
+  const rSprung = Math.max(1, rCorner - runs);
+
+  const ffreq = rideFreq(fwrNmm, fSprung);
+  const rfreq = rideFreq(rwrNmm, rSprung);
+
+  /* cards */
+  document.getElementById('fwr-display').textContent = fmt(fwrDisp, u.dec) + ' ' + u.label;
+  document.getElementById('fwr-sub').textContent     = fmt(fwrLbf, 0) + ' lbf/in · ' + fmt(fwrNmm, 1) + ' N/mm';
+  document.getElementById('rwr-display').textContent = fmt(rwrDisp, u.dec) + ' ' + u.label;
+  document.getElementById('rwr-sub').textContent     = fmt(rwrLbf, 0) + ' lbf/in · ' + fmt(rwrNmm, 1) + ' N/mm';
+  document.getElementById('ffreq-display').textContent = fmt(ffreq, 2) + ' Hz';
+  document.getElementById('rfreq-display').textContent = fmt(rfreq, 2) + ' Hz';
+
+  const diff = rfreq - ffreq;
+  let balance;
+  if (Math.abs(diff) < 0.05) balance = 'flat (front≈rear)';
+  else if (diff > 0) balance = 'rear +' + fmt(diff, 2) + ' Hz (planted)';
+  else balance = 'front +' + fmt(-diff, 2) + ' Hz (loose)';
+  document.getElementById('balance-sub').textContent = balance;
+
+  /* steps */
+  const steps = [
+    {
+      label: '1. Front wheel rate',
+      formula: 'k_spring × MR²',
+      result: `${fmt(fsrNmm,1)} × ${fmt(fmr,2)}² = <strong>${fmt(fwrNmm,1)} N/mm</strong> (${fmt(fwrLbf,0)} lbf/in)`
+    },
+    {
+      label: '2. Rear wheel rate',
+      formula: 'k_spring × MR²',
+      result: `${fmt(rsrNmm,1)} × ${fmt(rmr,2)}² = <strong>${fmt(rwrNmm,1)} N/mm</strong> (${fmt(rwrLbf,0)} lbf/in)`
+    },
+    {
+      label: '3. Sprung corner mass',
+      formula: '(weight × dist ÷ 2) − unsprung',
+      result: `F: (${fmt(weight,0)}×${fmt(dist,2)}/2)−${fmt(funs,0)} = <strong>${fmt(fSprung,0)} lb</strong> · R: <strong>${fmt(rSprung,0)} lb</strong>`
+    },
+    {
+      label: '4. Ride frequency',
+      formula: '(1/2π)√(k_wheel / m_sprung)',
+      result: `Front <strong>${fmt(ffreq,2)} Hz</strong> · Rear <strong>${fmt(rfreq,2)} Hz</strong> · ${balance}`
+    },
+  ];
+  document.getElementById('steps-grid').innerHTML = steps.map(s => `
+    <div class="step">
+      <div class="step-label">${s.label}</div>
+      <div class="step-formula">${s.formula}</div>
+      <div class="step-result">${s.result}</div>
+    </div>
+  `).join('');
+}
+
+update();
+</script>
+
+</div><!-- /.wrap -->
+</body>
+</html>
