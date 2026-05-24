@@ -60,6 +60,8 @@
     **IAG Stage 2 Oil Pump**  
     **IAG AOS**  
     **IAG Comp. Motor mounts**  
+    **IAG 156F Thermostat**
+    **Torque Solution High Flow Thermostat Housing**
     **P2P Racing Oil Cooler Kit**  
     **BL54XR Stock Location Turbo**  
     **PWR Intercooler Core**  
