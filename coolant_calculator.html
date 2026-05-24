@@ -184,12 +184,12 @@
   <div class="card highlight">
     <div class="card-label">Coolant Concentrate</div>
     <div class="card-value" id="coolant-qt">2.9 qt</div>
-    <div class="card-sub" id="coolant-gal">0.72 gal</div>
+    <div class="card-sub" id="coolant-oz">92 fl oz</div>
   </div>
   <div class="card highlight2">
     <div class="card-label">Distilled Water</div>
     <div class="card-value" id="water-qt">6.7 qt</div>
-    <div class="card-sub" id="water-gal">1.68 gal</div>
+    <div class="card-sub" id="water-oz">214 fl oz</div>
   </div>
   <div class="card highlight3">
     <div class="card-label">VP Cool Down</div>
@@ -265,8 +265,8 @@
 
     const coolantQt  = cap * pct / 100;
     const waterQt    = cap - coolantQt;
-    const coolantGal = coolantQt / 4;
-    const waterGal   = waterQt / 4;
+    const coolantOz  = coolantQt * 32;
+    const waterOz    = waterQt * 32;
     const vpBottles  = vpOz / 16;
 
     document.getElementById('cap-display').textContent  = cap.toFixed(1) + ' qt';
@@ -275,9 +275,9 @@
     document.getElementById('vp-label').textContent     = vpOz + ' oz';
 
     document.getElementById('coolant-qt').textContent   = coolantQt.toFixed(1) + ' qt';
-    document.getElementById('coolant-gal').textContent  = coolantGal.toFixed(2) + ' gal';
+    document.getElementById('coolant-oz').textContent   = coolantOz.toFixed(0) + ' fl oz';
     document.getElementById('water-qt').textContent     = waterQt.toFixed(1) + ' qt';
-    document.getElementById('water-gal').textContent    = waterGal.toFixed(2) + ' gal';
+    document.getElementById('water-oz').textContent     = waterOz.toFixed(0) + ' fl oz';
     document.getElementById('vp-oz').textContent        = vpOz + ' oz';
     document.getElementById('vp-bottles').textContent   = vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ' (16 oz ea)';
 
@@ -289,14 +289,14 @@
     const steps = [];
     steps.push({ label: '1. Drain fully', sub: 'dispose of old coolant properly' });
     if (pct > 0) {
-      steps.push({ label: '2. Pour concentrate', sub: coolantQt.toFixed(1) + ' qt (' + coolantGal.toFixed(2) + ' gal)' });
-      steps.push({ label: '3. Top with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterGal.toFixed(2) + ' gal)' });
+      steps.push({ label: '2. Pour concentrate', sub: coolantQt.toFixed(1) + ' qt (' + coolantOz.toFixed(0) + ' fl oz)' });
+      steps.push({ label: '3. Top with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterOz.toFixed(0) + ' fl oz)' });
       steps.push({ label: '4. Burp system', sub: 'run to temp, bleed air pockets' });
       if (vpOz > 0) {
         steps.push({ label: '5. Add VP Cool Down', sub: vpOz + ' oz (' + vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ') — add to reservoir while running' });
       }
     } else {
-      steps.push({ label: '2. Fill with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterGal.toFixed(2) + ' gal)' });
+      steps.push({ label: '2. Fill with distilled water', sub: waterQt.toFixed(1) + ' qt (' + waterOz.toFixed(0) + ' fl oz)' });
       steps.push({ label: '3. Burp system', sub: 'run to temp, bleed air pockets' });
       if (vpOz > 0) {
         steps.push({ label: '4. Add VP Cool Down', sub: vpOz + ' oz (' + vpBottles.toFixed(1) + ' bottle' + (vpBottles === 1 ? '' : 's') + ') — add to reservoir while running' });
