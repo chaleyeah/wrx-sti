@@ -94,6 +94,19 @@
   }
   .control-header label { font-size: 13px; color: #aaa; }
   .control-header span  { font-size: 13px; font-weight: 600; color: #fff; }
+  .rad-select {
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .rad-select:focus { outline: none; border-color: #3b82f6; }
+  .rad-meta { font-size: 11px; color: #555; margin-top: 6px; }
   input[type="range"] {
     width: 100%;
     height: 4px;
@@ -208,6 +221,20 @@
 <div class="controls">
   <div class="control-row">
     <div class="control-header">
+      <label>Radiator</label>
+    </div>
+    <select id="rad-select" class="rad-select">
+      <option value="8.1" data-core="~27mm core · FSM spec">Stock OEM</option>
+      <option value="9.0" data-core="42mm core · triple-pass">IAG 42mm Street Series</option>
+      <option value="9.6" data-core="53mm core" selected>Koyo Aluminum Racing</option>
+      <option value="9.7" data-core="55mm core · triple-pass">IAG 55mm Competition</option>
+      <option value="9.8" data-core="thick high-density core">PWR</option>
+    </select>
+    <div class="rad-meta" id="rad-meta">Sets system capacity below. All figures are estimates — fill to level marks, not by volume.</div>
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
       <label>System capacity (qt)</label>
       <span id="cap-label">9.6 qt</span>
     </div>
@@ -250,13 +277,23 @@
 
 <div class="note">
   <div class="note-title">Build Notes</div>
-  <div class="note-text">FSM spec is 8.1 qt. Koyo adds ~1.5 qt → ~9.6 qt total. PWR Track Spec may vary. Fill to level marks, not by volume. Burp with nose elevated. Change annually at 70/30 — more frequently below 25% glycol. VP Cool Down is added last after system is filled and running.</div>
+  <div class="note-text">FSM spec is 8.1 qt. Radiator dropdown figures are <strong>estimates</strong>: anchored on Koyo (~+1.5 qt over stock → 9.6 qt) and scaled by added core thickness (stock ~27mm, IAG 42mm, Koyo 53mm, IAG 55mm). PWR varies by model. These guide how much fluid to buy — always fill to level marks, not by volume. Burp with nose elevated. Change annually at 70/30 — more frequently below 25% glycol. VP Cool Down is added last after system is filled and running.</div>
 </div>
 
 <script>
   const capSlider = document.getElementById('capacity');
   const pctSlider = document.getElementById('pct');
   const vpSlider  = document.getElementById('vpamt');
+  const radSelect = document.getElementById('rad-select');
+
+  radSelect.addEventListener('change', () => {
+    capSlider.value = radSelect.value;
+    const opt = radSelect.options[radSelect.selectedIndex];
+    document.getElementById('rad-meta').textContent =
+      opt.text + ' · ' + opt.dataset.core + ' · est. ' + radSelect.value +
+      ' qt total system — fill to level marks, not by volume.';
+    update();
+  });
 
   function update() {
     const cap    = parseFloat(capSlider.value);
